@@ -1,0 +1,167 @@
+:root {
+  --font-family: 'Montserrat', sans-serif;
+}
+
+.p-component {
+  font-family: var(--font-family) !important;
+}
+
+/* D:\inventoryTrack\src\styles\primevue-theme.css */
+
+/* Общие стили для контейнеров действий */
+.actions-container {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  justify-content: flex-end;
+}
+
+/* Стили для загрузчика */
+.loader {
+  margin: 2rem auto;
+  display: block;
+  color: #4c51bf;
+}
+
+/* Стили для сообщений об ошибках */
+.error {
+  color: #dc3545;
+  text-align: center;
+  margin: 2rem;
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+/* Стили для отсутствия данных */
+.no-data {
+  text-align: center;
+  color: #a0aec0;
+  margin: 2rem;
+  font-size: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Стили для кнопок PrimeVue */
+.p-button {
+  background: #4c51bf;
+  border: none;
+  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
+  font-weight: 500;
+  font-size: 1rem;
+  transition:
+    background 0.3s,
+    transform 0.2s;
+}
+
+.p-button:hover {
+  background: #3b82f6;
+  transform: translateY(-2px);
+}
+
+.p-button:enabled:focus {
+  box-shadow: 0 0 0 3px rgba(76, 81, 191, 0.2);
+}
+
+.p-button.p-button-sm {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+}
+
+.p-button.p-button-secondary {
+  background: #6b7280;
+}
+
+.p-button.p-button-secondary:hover {
+  background: #4b5563;
+}
+
+/* Стили для таблицы PrimeVue */
+.p-datatable {
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.p-datatable .p-datatable-thead > tr > th {
+  background: #4c51bf;
+  color: #ffffff;
+  font-weight: 500;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.p-datatable .p-datatable-tbody > tr {
+  transition: background 0.3s;
+}
+
+.p-datatable .p-datatable-tbody > tr:hover {
+  background: rgba(76, 81, 191, 0.1);
+}
+
+/* Стили для панели фильтров */
+.filter-panel {
+  margin-bottom: 1.5rem;
+}
+
+/* Стили для модальных окон */
+.form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1.5rem;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-field label {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #2d3748;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.form-field .p-inputtext,
+.form-field .p-textarea,
+.form-field .p-inputnumber input,
+.form-field .p-dropdown {
+  width: 100%;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 0.75rem;
+  font-size: 1rem;
+  transition:
+    border-color 0.3s,
+    box-shadow 0.3s;
+}
+
+.form-field .p-inputtext:focus,
+.form-field .p-textarea:focus,
+.form-field .p-inputnumber input:focus,
+.form-field .p-dropdown:focus {
+  border-color: #4c51bf;
+  box-shadow: 0 0 0 3px rgba(76, 81, 191, 0.2);
+}
+
+.form-field .p-invalid {
+  border-color: #dc3545 !important;
+}
+
+.form-field .p-error {
+  color: #dc3545;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+.form-field.buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1rem;
+}

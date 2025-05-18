@@ -1,0 +1,107 @@
+import { defineStore } from 'pinia'
+import { ref } from 'vue'
+import { productService } from '@/services/productService'
+import type { Product } from '@/types/models'
+
+export const useProductStore = defineStore('product', () => {
+  const products = ref<Product[]>([])
+
+  async function fetchAll() {
+    try {
+      const data = await productService.getAll()
+      products.value = data || []
+      console.log('Products fetched:', products.value) // Для отладки
+    } catch (error) {
+      console.error('Failed to fetch products:', error)
+      products.value = []
+      throw error
+    }
+  }
+
+  async function fetchById(id: string) {
+    try {
+      return await productService.getById(id)
+    } catch (error) {
+      console.error('Failed to fetch product by ID:', error)
+      throw error
+    }
+  }
+
+  async function fetchByBarcode(barcode: string) {
+    try {
+      return await productService.getByBarcode(barcode)
+    } catch (error) {
+      console.error('Failed to fetch product by barcode:', error)
+      throw error
+    }
+  }
+
+  async function create(product: {
+    name: string
+    code: string
+    barcode: string
+    description: string
+    quantity: number
+    price: number
+    unit: number
+    categoryId: string
+    sectionId: string
+    supplierId: string
+  }) {
+    try {
+      const newProduct = await productService.create(product)
+      products.value.push(newProduct)
+    } catch (error) {
+      console.error('Failed to create product:', error)
+      throw error
+    }
+  }
+
+  async function update(
+    id: string,
+    product: {
+      name: string
+      code: string
+      barcode: string
+      description: string
+      quantity: number
+      price: number
+      unit: number
+      categoryId: string
+      sectionId: string
+      supplierId: string
+    },
+  ) {
+    try {
+      const updatedProduct = await productService.update(id, product)
+      const index = products.value.findIndex((p) => p.id === id)
+      if (index !== -1) products.value[index] = updatedProduct
+    } catch (error) {
+      console.error('Failed to update product:', error)
+      throw error
+    }
+  }
+
+  async function remove(id: string) {
+    try {
+      await productService.delete(id)
+      products.value = products.value.filter((p) => p.id !== id)
+    } catch (error) {
+      console.error('Failed to delete product:', error)
+      throw error
+    }
+  }
+
+  async function filter(params: { name?: string; categoryId?: string; sectionId?: string }) {
+    try {
+      const data = await productService.filter(params)
+      products.value = data || []
+    } catch (error) {
+      console.error('Failed to filter products:', error)
+      products.value = []
+      throw error
+    }
+  }
+
+  return { products, fetchAll, fetchById, fetchByBarcode, create, update, remove, filter }
+})
