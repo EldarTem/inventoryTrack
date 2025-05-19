@@ -1,20 +1,15 @@
+// services/orderService.ts
 import { get, post, put, del } from './index'
-import type { Order, OrderStatus } from '@/types/models'
+import type { Order } from '@/types/models'
 
 interface CreateOrder {
   number: string
-  type: number
+  type: string
+  status: string
   comment?: string
   warehouseId: string
   organizationId: string
   contactId: string
-}
-
-interface FilterOrders {
-  status?: number
-  warehouseId?: string
-  approvedFrom?: string
-  approvedTo?: string
 }
 
 export const orderService = {
@@ -47,25 +42,8 @@ export const orderService = {
     if (response.error) throw new Error(response.error)
   },
 
-  async approve(id: string): Promise<{ id: string; status: OrderStatus; approvedAt: string }> {
-    const response = await post<{ id: string; status: OrderStatus; approvedAt: string }, undefined>(
-      `/orders/${id}/approve`,
-      undefined,
-    )
-    if (response.error) throw new Error(response.error)
-    return response.data
-  },
-
-  async filter(params: FilterOrders): Promise<Order[]> {
-    const queryParams = Object.entries(params)
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      .filter(([_, value]) => value !== undefined)
-      .reduce(
-        (acc, [key, value]) => ({ ...acc, [key]: String(value) }),
-        {} as Record<string, string>,
-      )
-    const query = new URLSearchParams(queryParams).toString()
-    const response = await get<Order[]>(`/orders/filter?${query}`)
+  async approve(id: string): Promise<Order> {
+    const response = await post<Order, undefined>(`/orders/${id}/approve`, undefined)
     if (response.error) throw new Error(response.error)
     return response.data
   },

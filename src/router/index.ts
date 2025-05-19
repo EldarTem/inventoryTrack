@@ -80,7 +80,7 @@ const routes = [
   {
     path: '/admin',
     component: DefaultLayout,
-    meta: { requiresAuth: true, role: 'Administrator' },
+    meta: { requiresAuth: true, role: 'administrator' },
     children: [
       {
         path: 'dashboard',
@@ -133,17 +133,33 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
   const isAuthenticated = authStore.isAuthenticated
-  const userRole = authStore.user?.role?.code || '' // Normalize to string
+  const userRole = authStore.user?.role?.code || ''
+
+  console.log(
+    'Router: Navigating to:',
+    to.path,
+    'isAuthenticated:',
+    isAuthenticated,
+    'userRole:',
+    userRole,
+  ) 
 
   if (to.meta.requiresAuth && !isAuthenticated) {
     next('/auth/login')
   } else if (to.meta.role && userRole !== to.meta.role) {
+    console.log('Router: Role mismatch, redirecting to /auth/login')
     next('/auth/login')
-  } else if (to.path === '/auth/login' && isAuthenticated) {
-    if (userRole === 'manager') next('/manager/invoices')
-    else if (userRole === 'storekeeper') next('/storekeeper/dashboard')
-    else if (userRole === 'Administrator') next('/admin/dashboard')
-    else next()
+  } else if (to.path === '/auth/login' && isAuthenticated && userRole) {
+    if (userRole === 'manager') {
+      next('/manager/invoices')
+    } else if (userRole === 'storekeeper') {
+      next('/storekeeper/dashboard')
+    } else if (userRole === 'administrator') {
+      next('/admin/dashboard')
+    } else {
+      authStore.logout()
+      next('/auth/login')
+    }
   } else {
     next()
   }

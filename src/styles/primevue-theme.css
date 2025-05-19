@@ -6,8 +6,6 @@
   font-family: var(--font-family) !important;
 }
 
-/* D:\inventoryTrack\src\styles\primevue-theme.css */
-
 /* Общие стили для контейнеров действий */
 .actions-container {
   display: flex;
@@ -18,7 +16,7 @@
 
 /* Стили для загрузчика */
 .loader {
-  margin: 2rem auto;
+  margin: 2rem auto !important;
   display: block;
   color: #4c51bf;
 }

@@ -1,4 +1,4 @@
-// stores/userStore.ts
+
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { userService } from '@/services/userService'
@@ -17,7 +17,7 @@ export const useUserStore = defineStore('user', () => {
 
   async function create(user: {
     login: string
-    password: string // Пароль обязателен при создании
+    password: string
     role: string
     contactId: string
   }) {
@@ -29,7 +29,7 @@ export const useUserStore = defineStore('user', () => {
     id: string,
     user: {
       login: string
-      password?: string // Пароль опционален при обновлении
+      password?: string 
       role: string
       contactId: string
     },

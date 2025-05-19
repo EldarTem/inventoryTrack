@@ -10,7 +10,6 @@ export const useProductStore = defineStore('product', () => {
     try {
       const data = await productService.getAll()
       products.value = data || []
-      console.log('Products fetched:', products.value) // Для отладки
     } catch (error) {
       console.error('Failed to fetch products:', error)
       products.value = []

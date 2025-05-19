@@ -1,4 +1,3 @@
-// services/userService.ts
 import { get, post, put, del } from './index'
 import type { User, Contact } from '@/types/models'
 
@@ -6,7 +5,7 @@ interface CreateUser {
   login: string
   password?: string
   role: string
-  contactId: string | null // Допускаем null для contactId
+  contactId: string | null
 }
 
 export const userService = {

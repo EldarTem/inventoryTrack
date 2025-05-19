@@ -12,13 +12,7 @@
           @click="openCreateModal"
         />
       </div>
-      <FilterPanel
-        v-if="filteredCategories && filteredCategories.length"
-        :statuses="statuses"
-        @apply="applyFilters"
-        @reset="resetFilters"
-        class="filter-panel"
-      />
+
       <DataTable
         v-if="filteredCategories && filteredCategories.length"
         :value="filteredCategories"
@@ -74,7 +68,6 @@
 import { computed, ref, onMounted } from "vue";
 import { useProductCategoryStore } from "@/stores/productCategoryStore";
 import { useToast } from "primevue/usetoast";
-import FilterPanel from "@/components/widgets/FilterPanel.vue";
 import CategoryModal from "@/components/widgets/CategoryModal.vue";
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
@@ -100,8 +93,6 @@ const filters = ref<{
   date: null,
 });
 
-const statuses = ref([]); // No status filtering for categories
-
 const filteredCategories = computed(() => {
   let result = categoryStore.categories || [];
   if (filters.value.search) {
@@ -122,14 +113,12 @@ onMounted(async () => {
   isLoading.value = true;
   error.value = null;
   try {
-    console.log("Fetching categories..."); // Для отладки
     await categoryStore.fetchAll();
-    console.log("Categories fetched:", categoryStore.categories); // Для отладки
   } catch (err) {
     error.value =
       "Не удалось загрузить категории: " +
       (err instanceof Error ? err.message : "Неизвестная ошибка");
-    console.error("Fetch error:", error.value); // Для отладки
+
     toast.add({
       severity: "error",
       summary: "Ошибка",
@@ -221,13 +210,5 @@ async function deleteCategory(id: string) {
       life: 3000,
     });
   }
-}
-
-function applyFilters(newFilters: typeof filters.value) {
-  filters.value = newFilters;
-}
-
-function resetFilters() {
-  filters.value = { search: "", status: undefined, date: null };
 }
 </script>

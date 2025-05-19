@@ -1,8 +1,8 @@
 export function exportToCSV<T extends Record<string, unknown>>(data: T[], filename: string) {
-  if (!data.length) return // Проверка на пустой массив
+  if (!data.length) return 
   const headers = Object.keys(data[0])
   const csv = [
-    headers.join(','), // Заголовки
+    headers.join(','),
     ...data.map((row) =>
       headers
         .map((key) => {

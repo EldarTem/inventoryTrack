@@ -1,3 +1,4 @@
+// stores/orderStore.ts
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { orderService } from '@/services/orderService'
@@ -16,7 +17,8 @@ export const useOrderStore = defineStore('order', () => {
 
   async function create(order: {
     number: string
-    type: number
+    type: string
+    status: string
     comment?: string
     warehouseId: string
     organizationId: string
@@ -30,7 +32,8 @@ export const useOrderStore = defineStore('order', () => {
     id: string,
     order: {
       number: string
-      type: number
+      type: string
+      status: string
       comment?: string
       warehouseId: string
       organizationId: string
@@ -48,22 +51,18 @@ export const useOrderStore = defineStore('order', () => {
   }
 
   async function approve(id: string) {
-    const result = await orderService.approve(id)
-    const order = orders.value.find((o) => o.id === id)
-    if (order) {
-      order.status = result.status
-      order.approvedAt = result.approvedAt
-    }
+    const updatedOrder = await orderService.approve(id)
+    const index = orders.value.findIndex((o) => o.id === id)
+    if (index !== -1) orders.value[index] = updatedOrder
   }
 
-  async function filter(params: {
-    status?: number
-    warehouseId?: string
-    approvedFrom?: string
-    approvedTo?: string
-  }) {
-    orders.value = await orderService.filter(params)
+  return {
+    orders,
+    fetchAll,
+    fetchById,
+    create,
+    update,
+    remove,
+    approve,
   }
-
-  return { orders, fetchAll, fetchById, create, update, remove, approve, filter }
 })

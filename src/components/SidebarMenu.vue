@@ -1,11 +1,10 @@
 <template>
   <aside class="sidebar" :class="{ collapsed: isCollapsed }">
-    <!-- Логотип -->
+
     <div class="sidebar-header">
       <img src="@/assets/logo-label.svg" alt="Логотип" class="logo" />
     </div>
 
-    <!-- Основное меню -->
     <Menu :model="menuItems" class="sidebar-menu">
       <template #item="{ item }">
         <a
@@ -46,7 +45,6 @@ const userRole = computed(() => {
 
 const isAuthenticated = computed(() => !!authStore.user);
 
-// Для подсветки активного пункта
 function isActive(routeName: string) {
   return route.name === routeName;
 }
@@ -64,11 +62,10 @@ function logout(_event: MenuItemCommandEvent) {
 const profileRoute = computed(() => {
   if (userRole.value === "manager") return "ManagerProfile";
   if (userRole.value === "storekeeper") return "StorekeeperProfile";
-  if (userRole.value === "Administrator") return "AdminProfile";
+  if (userRole.value === "administrator") return "AdminProfile";
   return "";
 });
 
-// Обработка клика по пункту меню
 function handleItemClick(item: MenuItem) {
   if (item.command) {
     item.command({ originalEvent: new Event("click"), item });
@@ -96,7 +93,7 @@ const menuItems = computed<MenuItem[]>(() => {
       }
     );
   }
-  if (userRole.value === "Administrator" && isAuthenticated.value) {
+  if (userRole.value === "administrator" && isAuthenticated.value) {
     items.push(
       { label: "Главная", icon: "pi pi-home", route: "AdminDashboard" },
       { label: "Товары", icon: "pi pi-box", route: "AdminProducts" },
@@ -107,7 +104,6 @@ const menuItems = computed<MenuItem[]>(() => {
     );
   }
 
-  // Разделитель
   items.push({ separator: true });
 
   if (isAuthenticated.value) {
@@ -127,7 +123,6 @@ const menuItems = computed<MenuItem[]>(() => {
 </script>
 
 <style scoped>
-/* Основной контейнер сайдбара */
 .sidebar {
   position: fixed;
   top: 0;
@@ -144,7 +139,6 @@ const menuItems = computed<MenuItem[]>(() => {
   transition: width 0.3s ease;
 }
 
-/* Свернутый сайдбар */
 .sidebar.collapsed {
   width: 80px;
 }
@@ -162,7 +156,6 @@ const menuItems = computed<MenuItem[]>(() => {
   max-width: 50px;
 }
 
-/* Логотип */
 .sidebar-header {
   display: flex;
   justify-content: center;
@@ -178,7 +171,6 @@ const menuItems = computed<MenuItem[]>(() => {
   transform: scale(1.05);
 }
 
-/* Меню */
 .sidebar-menu {
   flex-grow: 1;
   border: none;
@@ -187,7 +179,6 @@ const menuItems = computed<MenuItem[]>(() => {
   padding: 0.5rem 0;
 }
 
-/* Стили пунктов меню */
 .p-menuitem-link {
   display: flex;
   align-items: center;
@@ -204,21 +195,18 @@ const menuItems = computed<MenuItem[]>(() => {
   cursor: pointer;
 }
 
-/* Активный пункт */
 .p-menuitem-link.active {
   background: #4c51bf;
   color: #ffffff;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
-/* Hover эффект */
 .p-menuitem-link:hover {
   background: rgba(255, 255, 255, 0.15);
   transform: translateX(5px);
   color: #4c51bf;
 }
 
-/* Иконки */
 .p-menuitem-link i {
   font-size: 1.5rem;
   transition: transform 0.2s;
@@ -227,25 +215,21 @@ const menuItems = computed<MenuItem[]>(() => {
   transform: scale(1.1);
 }
 
-/* Текст пункта */
 .p-menuitem-text {
   font-family: "Montserrat", sans-serif;
   font-weight: 500;
 }
 
-/* Футерные пункты */
 .p-menuitem-link.footer-item {
   margin-top: auto;
   opacity: 0.9;
 }
 
-/* Разделитель */
 .p-menu-separator {
   border-top: 1px solid rgba(255, 255, 255, 0.2);
   margin: 1rem 0;
 }
 
-/* Адаптивность */
 @media (max-width: 1024px) {
   .sidebar {
     width: 80px;

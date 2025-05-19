@@ -29,7 +29,9 @@ export interface User {
   password?: string
 }
 
+// types/models.ts
 export interface OrderItem {
+  id?: string // Добавляем опциональный id для ответа от сервера
   quantity: number
   price: number
   productId: string
@@ -40,30 +42,35 @@ export interface OrderItem {
   sectionName?: string
 }
 
+export interface OrderStatus {
+  code: string
+  displayValue: string
+}
+
+export interface OrderType {
+  code: string
+  displayValue: string
+}
+
 export interface Order {
-  id: string
+  id?: string 
   number: string
   approvedAt?: string
   type: OrderType
   status: OrderStatus
-  warehouseId: string
-  warehouseName?: string
-  organizationId: string
-  organizationName?: string
-  contactId: string
-  contactName?: string
+  organization: {
+    id: string
+    displayValue: string
+  }
+  contact: {
+    id: string
+    displayValue: string
+  }
+  warehouse: {
+    id: string
+    displayValue: string
+  }
   comment?: string
-}
-
-export enum OrderType {
-  Incoming = 0,
-  Outgoing = 1,
-}
-
-export enum OrderStatus {
-  Pending = 0,
-  Approved = 1,
-  Rejected = 2,
 }
 
 export interface OrganizationType {

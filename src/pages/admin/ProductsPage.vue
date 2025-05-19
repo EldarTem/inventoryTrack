@@ -12,13 +12,7 @@
           @click="openCreateModal"
         />
       </div>
-      <FilterPanel
-        v-if="filteredProducts && filteredProducts.length"
-        :statuses="statuses"
-        @apply="applyFilters"
-        @reset="resetFilters"
-        class="filter-panel"
-      />
+
       <DataTable
         v-if="filteredProducts && filteredProducts.length"
         :value="filteredProducts"
@@ -81,7 +75,6 @@
 import { computed, ref, onMounted } from "vue";
 import { useProductStore } from "@/stores/productStore";
 import { useToast } from "primevue/usetoast";
-import FilterPanel from "@/components/widgets/FilterPanel.vue";
 import ProductModal from "@/components/widgets/ProductModal.vue";
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
@@ -107,10 +100,9 @@ const filters = ref<{
   date: null,
 });
 
-const statuses = ref([]); // No status filtering for products
 
 const filteredProducts = computed(() => {
-  console.log("Computing filteredProducts, products:", productStore.products); // Для отладки
+  console.log("Computing filteredProducts, products:", productStore.products);
   const products = productStore.products || [];
   if (filters.value.search) {
     return products.filter((p) =>
@@ -133,14 +125,11 @@ onMounted(async () => {
   isLoading.value = true;
   error.value = null;
   try {
-    console.log("Fetching products..."); // Для отладки
     await productStore.fetchAll();
-    console.log("Products fetched:", productStore.products); // Для отладки
   } catch (err) {
     error.value =
       "Не удалось загрузить товары: " +
       (err instanceof Error ? err.message : "Неизвестная ошибка");
-    console.error("Fetch error:", error.value); // Для отладки
     toast.add({
       severity: "error",
       summary: "Ошибка",
@@ -240,11 +229,5 @@ async function deleteProduct(id: string) {
   }
 }
 
-function applyFilters(newFilters: typeof filters.value) {
-  filters.value = newFilters;
-}
 
-function resetFilters() {
-  filters.value = { search: "", status: undefined, date: null };
-}
 </script>

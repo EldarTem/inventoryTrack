@@ -58,9 +58,11 @@ import Card from "primevue/card";
 import InputText from "primevue/inputtext";
 import Password from "primevue/password";
 import Button from "primevue/button";
+import { useToast } from "primevue/usetoast";
 
 const router = useRouter();
 const authStore = useAuthStore();
+const toast = useToast();
 
 const form = reactive({
   login: "",
@@ -86,15 +88,25 @@ async function handleLogin() {
 
   try {
     await authStore.login(form);
-    const role = authStore.user?.role;
-    // Normalize role to string
-    const roleCode = typeof role === "string" ? role : role?.code || "";
-
-    if (roleCode === "manager") router.push("/manager/invoices");
-    else if (roleCode === "storekeeper") router.push("/storekeeper/dashboard");
-    else if (roleCode === "Administrator") router.push("/admin/dashboard");
-    else router.push("/auth/login");
-  } catch {
+    console.log("LoginPage: User after login:", authStore.user); 
+    const userRole = authStore.user?.role?.code;
+    if (userRole === "manager") {
+      router.push("/manager/invoices");
+    } else if (userRole === "storekeeper") {
+      router.push("/storekeeper/dashboard");
+    } else if (userRole === "administrator") {
+      router.push("/admin/dashboard");
+    } else {
+      throw new Error("Unknown role");
+    }
+  } catch (error) {
+    console.error("LoginPage: Login error:", error);
+    toast.add({
+      severity: "error",
+      summary: "Ошибка",
+      detail: "Неверный логин или пароль",
+      life: 3000,
+    });
     loginError.value = true;
     passwordError.value = true;
   } finally {
@@ -114,7 +126,7 @@ async function handleLogin() {
 }
 
 .login-card {
-  max-width: 600px; /* стало шире */
+  max-width: 600px;
   width: 100%;
   background: #fff;
   border-radius: 12px;
@@ -164,7 +176,6 @@ async function handleLogin() {
   color: #2d3748;
 }
 
-/* Единый стиль для InputText и Password */
 .form-field :deep(.p-inputtext),
 .form-field :deep(.p-password input) {
   width: 100%;

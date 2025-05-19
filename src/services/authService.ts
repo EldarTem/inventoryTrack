@@ -1,4 +1,3 @@
-// services/authService.ts
 import { post } from './index'
 import type { User, Role } from '@/types/models'
 
@@ -10,7 +9,7 @@ interface LoginCredentials {
 interface LoginResponse {
   id: string
   login: string
-  role: string // API returns role as a string
+  role: { code: string; displayValue: string }
 }
 
 export const authService = {
@@ -21,26 +20,27 @@ export const authService = {
       throw new Error(response.error)
     }
 
-    // Map string role to Role object
+
     const roleMap: Record<string, Role> = {
       manager: { code: 'manager', displayValue: 'Менеджер' },
       storekeeper: { code: 'storekeeper', displayValue: 'Кладовщик' },
-      Administrator: { code: 'Administrator', displayValue: 'Администратор' },
+      administrator: { code: 'administrator', displayValue: 'Администратор' },
     }
 
-    const role = roleMap[response.data.role] || {
-      code: response.data.role,
-      displayValue: response.data.role, // Fallback if role is not in map
+    const roleKey = response.data.role?.code || 'unknown'
+    const role = roleMap[roleKey] || {
+      code: roleKey,
+      displayValue: response.data.role?.displayValue || roleKey,
     }
+
 
     return {
       id: response.data.id,
       login: response.data.login,
-      role, // Return Role object
+      role,
     }
   },
 
   async logout() {
-    // API для логаута отсутствует
   },
 }

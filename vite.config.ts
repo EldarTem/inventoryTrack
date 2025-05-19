@@ -21,11 +21,10 @@ export default defineConfig({
     },
   },
   build: {
-    outDir: 'dist', // Убедитесь, что сборка идет в папку dist
-    sourcemap: true, // Для отладки
+    outDir: 'dist', 
+    sourcemap: true,
     rollupOptions: {
       output: {
-        // Убедитесь, что выходные файлы имеют расширение .js
         entryFileNames: `assets/[name].js`,
         chunkFileNames: `assets/[name].js`,
         assetFileNames: `assets/[name].[ext]`,

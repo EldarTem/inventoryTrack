@@ -14,13 +14,7 @@
               @click="openCreateModal"
             />
           </div>
-          <FilterPanel
-            v-if="filteredWarehouses && filteredWarehouses.length"
-            :statuses="statuses"
-            @apply="applyFilters"
-            @reset="resetFilters"
-            class="filter-panel"
-          />
+
           <DataTable
             v-if="filteredWarehouses && filteredWarehouses.length"
             :value="filteredWarehouses"
@@ -88,7 +82,6 @@
 import { computed, ref, onMounted } from "vue";
 import { useWarehouseStore } from "@/stores/warehouseStore";
 import { useToast } from "primevue/usetoast";
-import FilterPanel from "@/components/widgets/FilterPanel.vue";
 import WarehouseModal from "@/components/widgets/WarehouseModal.vue";
 import WarehouseSectionsTab from "@/components/WarehouseSectionsTab.vue";
 import TabView from "primevue/tabview";
@@ -106,7 +99,7 @@ const error = ref<string | null>(null);
 const showModal = ref(false);
 const isEditMode = ref(false);
 const selectedWarehouse = ref<Warehouse | null>(null);
-const activeIndex = ref(0); // Default to first tab ("Склады")
+const activeIndex = ref(0);
 
 const filters = ref<{
   search: string;
@@ -118,7 +111,6 @@ const filters = ref<{
   date: null,
 });
 
-const statuses = ref([]); // No status filtering for warehouses
 
 const filteredWarehouses = computed(() => {
   let result = warehouseStore.warehouses || [];
@@ -244,11 +236,5 @@ async function deleteWarehouse(id: string) {
   }
 }
 
-function applyFilters(newFilters: typeof filters.value) {
-  filters.value = newFilters;
-}
 
-function resetFilters() {
-  filters.value = { search: "", status: undefined, date: null };
-}
 </script>

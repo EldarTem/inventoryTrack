@@ -1,3 +1,4 @@
+// stores/orderItemStore.ts
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { orderItemService } from '@/services/orderItemService'
@@ -6,53 +7,65 @@ import type { OrderItem } from '@/types/models'
 export const useOrderItemStore = defineStore('orderItem', () => {
   const orderItems = ref<OrderItem[]>([])
 
+  async function fetchAllByOrder(orderId: string) {
+    orderItems.value = await orderItemService.getAllByOrder(orderId)
+  }
+
+  async function fetchById(id: string) {
+    return await orderItemService.getById(id)
+  }
+
   async function create(orderItem: {
-    quantity: number
-    price: number
     productId: string
     orderId: string
+    quantity: number
+    price: number
     sectionId: string
   }) {
-    const newItem = await orderItemService.create(orderItem)
-    orderItems.value.push(newItem)
+    const newOrderItem = await orderItemService.create(orderItem)
+    orderItems.value.push(newOrderItem)
   }
 
   async function createBulk(
     orderItemsData: {
-      quantity: number
-      price: number
       productId: string
       orderId: string
+      quantity: number
+      price: number
       sectionId: string
     }[],
   ) {
-    const newItems = await orderItemService.createBulk(orderItemsData)
-    orderItems.value.push(...newItems)
+    await orderItemService.createBulk(orderItemsData)
+    orderItems.value = await orderItemService.getAllByOrder(orderItemsData[0].orderId)
   }
 
   async function update(
     id: string,
     orderItem: {
-      quantity: number
-      price: number
       productId: string
       orderId: string
+      quantity: number
+      price: number
       sectionId: string
     },
   ) {
-    const updatedItem = await orderItemService.update(id, orderItem)
-    const index = orderItems.value.findIndex((item) => item.productId === id)
-    if (index !== -1) orderItems.value[index] = updatedItem
+    const updatedOrderItem = await orderItemService.update(id, orderItem)
+    const index = orderItems.value.findIndex((oi) => oi.id === id)
+    if (index !== -1) orderItems.value[index] = updatedOrderItem
   }
 
   async function remove(id: string) {
     await orderItemService.delete(id)
-    orderItems.value = orderItems.value.filter((item) => item.productId !== id)
+    orderItems.value = orderItems.value.filter((oi) => oi.id !== id)
   }
 
-  async function fetchByOrderId(orderId: string) {
-    orderItems.value = await orderItemService.getByOrderId(orderId)
+  return {
+    orderItems,
+    fetchAllByOrder,
+    fetchById,
+    create,
+    createBulk,
+    update,
+    remove,
   }
-
-  return { orderItems, create, createBulk, update, remove, fetchByOrderId }
 })

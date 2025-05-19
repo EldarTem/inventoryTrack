@@ -1,7 +1,6 @@
 <template>
   <div class="layout">
     <Toast />
-    <!-- Добавляем компонент Toast -->
     <div class="sidebar">
       <SidebarMenu />
     </div>
@@ -13,7 +12,7 @@
 
 <script lang="ts" setup>
 import SidebarMenu from "@/components/SidebarMenu.vue";
-import Toast from "primevue/toast"; // Импортируем Toast
+import Toast from "primevue/toast";
 </script>
 
 <style scoped>

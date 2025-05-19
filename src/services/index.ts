@@ -1,4 +1,4 @@
-const BASE_URL = '/api' // Используем прокси в vite.config.ts
+const BASE_URL = '/api' 
 
 interface ApiResponse<T> {
   data: T

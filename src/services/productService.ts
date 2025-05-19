@@ -23,7 +23,7 @@ interface FilterProducts {
 export const productService = {
   async getAll(): Promise<Product[]> {
     const response = await get<Product[]>('/products')
-    console.log('productService.getAll response:', response) // Для отладки
+    console.log('productService.getAll response:', response)
     if (response.error) throw new Error(response.error)
     return response.data || []
   },
@@ -66,7 +66,7 @@ export const productService = {
       )
     const query = new URLSearchParams(queryParams).toString()
     const response = await get<Product[]>(`/products/filter?${query}`)
-    console.log('productService.filter response:', response) // Для отладки
+    console.log('productService.filter response:', response) 
     if (response.error) throw new Error(response.error)
     return response.data || []
   },

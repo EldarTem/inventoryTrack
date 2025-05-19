@@ -114,11 +114,11 @@ async function handleUpdate() {
   try {
     const updateData = {
       login: user.value.login,
-      role: user.value.role.code, // Use role.code as string
+      role: user.value.role.code,
       contactId:
         user.value.contact?.id || "00000000-0000-0000-0000-000000000000",
       isActive: user.value.isActive,
-      password: form.password || user.value.password, // Avoid sending empty password
+      password: form.password || user.value.password,
     };
     await userStore.update(user.value.id, updateData);
     toast.add({
@@ -127,7 +127,7 @@ async function handleUpdate() {
       detail: "Профиль обновлен",
       life: 3000,
     });
-    form.password = ""; // Clear password field after successful update
+    form.password = ""; 
   } catch (err) {
     toast.add({
       severity: "error",

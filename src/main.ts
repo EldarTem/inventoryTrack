@@ -16,7 +16,6 @@ const app = createApp(App)
 const pinia = createPinia()
 app.use(pinia)
 
-// Восстановление сессии до инициализации роутера
 const auth = useAuthStore()
 auth.restoreSession()
 
@@ -32,7 +31,7 @@ app.use(PrimeVue, {
   },
 })
 app.use(ToastService)
-// Глобальный обработчик ошибок
+
 app.config.errorHandler = (err, vm, info) => {
   console.error('Vue Error:', err, info)
 }

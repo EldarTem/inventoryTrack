@@ -2,7 +2,6 @@
 import { computed, ref, onMounted } from "vue";
 import { useUserStore } from "@/stores/userStore";
 import { useToast } from "primevue/usetoast";
-import FilterPanel from "@/components/widgets/FilterPanel.vue";
 import UserModal from "@/components/widgets/UserModal.vue";
 import ContactsTab from "@/components/ContactsTab.vue";
 import TabView from "primevue/tabview";
@@ -31,10 +30,7 @@ const filters = ref<{
   date: null,
 });
 
-const statuses = ref([
-  { label: "Активен", value: "active" },
-  { label: "Неактивен", value: "inactive" },
-]);
+
 
 const filteredUsers = computed(() => {
   let result = userStore.users || [];
@@ -180,13 +176,7 @@ async function deleteUser(id: string) {
   }
 }
 
-function applyFilters(newFilters: typeof filters.value) {
-  filters.value = newFilters;
-}
 
-function resetFilters() {
-  filters.value = { search: "", status: undefined, date: null };
-}
 </script>
 
 <template>
@@ -205,13 +195,7 @@ function resetFilters() {
               @click="openCreateModal"
             />
           </div>
-          <FilterPanel
-            v-if="filteredUsers && filteredUsers.length"
-            :statuses="statuses"
-            @apply="applyFilters"
-            @reset="resetFilters"
-            class="filter-panel"
-          />
+
           <DataTable
             v-if="filteredUsers && filteredUsers.length"
             :value="filteredUsers"
