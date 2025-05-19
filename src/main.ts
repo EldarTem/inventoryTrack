@@ -12,6 +12,8 @@ import './styles/primevue-theme.css'
 
 import { useAuthStore } from '@/stores/authStore'
 import ToastService from 'primevue/toastservice'
+import ConfirmationService from 'primevue/confirmationservice'
+
 const app = createApp(App)
 const pinia = createPinia()
 app.use(pinia)
@@ -31,7 +33,7 @@ app.use(PrimeVue, {
   },
 })
 app.use(ToastService)
-
+app.use(ConfirmationService)
 app.config.errorHandler = (err, vm, info) => {
   console.error('Vue Error:', err, info)
 }

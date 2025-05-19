@@ -1,12 +1,17 @@
-const BASE_URL = '/api' 
+const BASE_URL = 'http://194.67.84.131:8080/api'
 
 interface ApiResponse<T> {
   data: T
   error?: string
 }
 
+interface ErrorPayload {
+  error?: string
+}
+
 async function http<T>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
   const url = `${BASE_URL}${endpoint}`
+
   const defaultOptions: RequestInit = {
     headers: {
       'Content-Type': 'application/json',
@@ -17,17 +22,23 @@ async function http<T>(endpoint: string, options: RequestInit = {}): Promise<Api
 
   try {
     const response = await fetch(url, defaultOptions)
-    const data = await response.json()
+
+    const text = await response.text()
+
+    const raw = text ? JSON.parse(text) : null
+    const data = raw as T
+    const errorInfo = raw as ErrorPayload
 
     if (!response.ok) {
-      throw new Error(data.error || `HTTP error! Status: ${response.status}`)
+      const serverMessage = errorInfo.error ?? `HTTP error! Status: ${response.status}`
+      throw new Error(serverMessage)
     }
 
     return { data }
-  } catch (error) {
+  } catch (err: unknown) {
     return {
       data: null as unknown as T,
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: err instanceof Error ? err.message : 'Unknown error',
     }
   }
 }

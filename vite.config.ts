@@ -11,17 +11,9 @@ export default defineConfig({
     },
     extensions: ['.js', '.ts', '.vue'],
   },
-  server: {
-    proxy: {
-      '/api': {
-        target: 'http://194.67.84.131:8080',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, '/api'),
-      },
-    },
-  },
+
   build: {
-    outDir: 'dist', 
+    outDir: 'dist',
     sourcemap: true,
     rollupOptions: {
       output: {

@@ -2,6 +2,7 @@
 import { computed, ref, onMounted } from "vue";
 import { useUserStore } from "@/stores/userStore";
 import { useToast } from "primevue/usetoast";
+import { useConfirm } from "primevue/useconfirm";
 import UserModal from "@/components/widgets/UserModal.vue";
 import ContactsTab from "@/components/ContactsTab.vue";
 import TabView from "primevue/tabview";
@@ -15,6 +16,7 @@ import type { User } from "@/types/models";
 const userStore = useUserStore();
 const toast = useToast();
 const isLoading = ref(false);
+const confirm = useConfirm();
 const error = ref<string | null>(null);
 const showModal = ref(false);
 const isEditMode = ref(false);
@@ -29,8 +31,6 @@ const filters = ref<{
   status: undefined,
   date: null,
 });
-
-
 
 const filteredUsers = computed(() => {
   let result = userStore.users || [];
@@ -155,28 +155,35 @@ async function saveUser(user: User) {
   }
 }
 
-async function deleteUser(id: string) {
-  try {
-    await userStore.remove(id);
-    toast.add({
-      severity: "success",
-      summary: "Успех",
-      detail: "Сотрудник удален",
-      life: 3000,
-    });
-  } catch (err) {
-    toast.add({
-      severity: "error",
-      summary: "Ошибка",
-      detail:
-        "Не удалось удалить сотрудника: " +
-        (err instanceof Error ? err.message : "Неизвестная ошибка"),
-      life: 3000,
-    });
-  }
+function confirmDelete(id: string) {
+  confirm.require({
+    message: "Вы уверены, что хотите удалить этот контакт?",
+    header: "Подтверждение удаления",
+    icon: "pi pi-exclamation-triangle",
+    acceptLabel: "Да",
+    rejectLabel: "Нет",
+    accept: async () => {
+      try {
+        await userStore.remove(id);
+        toast.add({
+          severity: "success",
+          summary: "Успех",
+          detail: "Контакт удален",
+          life: 3000,
+        });
+      } catch (err) {
+        toast.add({
+          severity: "error",
+          summary: "Ошибка",
+          detail:
+            "Не удалось удалить контакт: " +
+            (err instanceof Error ? err.message : "Неизвестная ошибка"),
+          life: 3000,
+        });
+      }
+    },
+  });
 }
-
-
 </script>
 
 <template>
@@ -221,18 +228,16 @@ async function deleteUser(id: string) {
               <template #body="{ data }">
                 <div class="actions-container">
                   <Button
-
                     icon="pi pi-pencil"
                     severity="warning"
                     class="p-button-sm"
                     @click.stop="openEditModal(data)"
                   />
                   <Button
-
                     icon="pi pi-trash"
                     severity="danger"
                     class="p-button-sm"
-                    @click.stop="deleteUser(data.id)"
+                    @click.stop="confirmDelete(data.id)"
                   />
                 </div>
               </template>

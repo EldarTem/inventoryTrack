@@ -2,15 +2,18 @@
 import { ref, onMounted } from "vue";
 import { useContactStore } from "@/stores/contactStore";
 import { useToast } from "primevue/usetoast";
+import { useConfirm } from "primevue/useconfirm";
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
 import Button from "primevue/button";
 import ProgressSpinner from "primevue/progressspinner";
+import ConfirmDialog from "primevue/confirmdialog";
 import ContactModal from "@/components/widgets/ContactModal.vue";
 import type { PersonContact } from "@/types/models";
 
 const contactStore = useContactStore();
 const toast = useToast();
+const confirm = useConfirm();
 const isLoading = ref(false);
 const error = ref<string | null>(null);
 const showModal = ref(false);
@@ -30,14 +33,11 @@ onMounted(async () => {
   isLoading.value = true;
   error.value = null;
   try {
-    console.log("Fetching contacts...");
     await contactStore.fetchAll();
-    console.log("Contacts fetched:", contactStore.contacts);
   } catch (err) {
     error.value =
       "Не удалось загрузить контакты: " +
       (err instanceof Error ? err.message : "Неизвестная ошибка");
-    console.error("Fetch error:", error.value);
     toast.add({
       severity: "error",
       summary: "Ошибка",
@@ -114,25 +114,34 @@ async function saveContact(contact: PersonContact) {
   }
 }
 
-async function deleteContact(id: string) {
-  try {
-    await contactStore.remove(id);
-    toast.add({
-      severity: "success",
-      summary: "Успех",
-      detail: "Контакт удален",
-      life: 3000,
-    });
-  } catch (err) {
-    toast.add({
-      severity: "error",
-      summary: "Ошибка",
-      detail:
-        "Не удалось удалить контакт: " +
-        (err instanceof Error ? err.message : "Неизвестная ошибка"),
-      life: 3000,
-    });
-  }
+function confirmDelete(id: string) {
+  confirm.require({
+    message: "Вы уверены, что хотите удалить этот контакт?",
+    header: "Подтверждение удаления",
+    icon: "pi pi-exclamation-triangle",
+    acceptLabel: "Да",
+    rejectLabel: "Нет",
+    accept: async () => {
+      try {
+        await contactStore.remove(id);
+        toast.add({
+          severity: "success",
+          summary: "Успех",
+          detail: "Контакт удален",
+          life: 3000,
+        });
+      } catch (err) {
+        toast.add({
+          severity: "error",
+          summary: "Ошибка",
+          detail:
+            "Не удалось удалить контакт: " +
+            (err instanceof Error ? err.message : "Неизвестная ошибка"),
+          life: 3000,
+        });
+      }
+    },
+  });
 }
 </script>
 
@@ -150,7 +159,7 @@ async function deleteContact(id: string) {
         />
       </div>
       <DataTable
-        v-if="contactStore.contacts && contactStore.contacts.length"
+        v-if="contactStore.contacts?.length"
         :value="contactStore.contacts"
         :columns="columns"
         row-key="id"
@@ -163,7 +172,7 @@ async function deleteContact(id: string) {
         <Column field="position" header="Должность" />
         <Column field="phone" header="Телефон" />
         <Column field="email" header="Email" />
-
+        <Column field="organization.displayValue" header="Организация" />
         <Column header="Действия">
           <template #body="{ data }">
             <div class="actions-container">
@@ -177,7 +186,7 @@ async function deleteContact(id: string) {
                 icon="pi pi-trash"
                 severity="danger"
                 class="p-button-sm"
-                @click.stop="deleteContact(data.id)"
+                @click.stop="confirmDelete(data.id)"
               />
             </div>
           </template>
@@ -200,6 +209,7 @@ async function deleteContact(id: string) {
         @save="saveContact"
         @cancel="closeModal"
       />
+      <ConfirmDialog />
     </div>
   </div>
 </template>
