@@ -53,7 +53,7 @@ export interface OrderType {
 }
 
 export interface Order {
-  id?: string 
+  id?: string
   number: string
   approvedAt?: string
   type: OrderType
@@ -71,6 +71,7 @@ export interface Order {
     displayValue: string
   }
   comment?: string
+  createdById?: string
 }
 
 export interface OrganizationType {
@@ -106,7 +107,7 @@ export interface Product {
   description: string
   quantity: number
   price: number
-  unit: ProductUnit
+  unit: string // Изменено с number на string
   categoryId: string
   sectionId: string
   supplierId: string

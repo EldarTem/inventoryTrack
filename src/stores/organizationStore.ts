@@ -26,8 +26,8 @@ export const useOrganizationStore = defineStore('organization', () => {
     type: string
     primaryContactId: string
   }) {
-    const newOrg = await organizationService.create(org)
-    organizations.value.push(newOrg)
+    await organizationService.create(org)
+    setTimeout(fetchAll, 200)
   }
 
   async function update(
@@ -45,9 +45,8 @@ export const useOrganizationStore = defineStore('organization', () => {
       primaryContactId: string
     },
   ) {
-    const updatedOrg = await organizationService.update(id, org)
-    const index = organizations.value.findIndex((o) => o.id === id)
-    if (index !== -1) organizations.value[index] = updatedOrg
+    await organizationService.update(id, org)
+    setTimeout(fetchAll, 200)
   }
 
   async function remove(id: string) {

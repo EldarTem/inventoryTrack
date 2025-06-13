@@ -192,7 +192,7 @@ onMounted(async () => {
   try {
     await Promise.all([
       warehouseStore.fetchAll(),
-      organizationStore.filter(),
+      organizationStore.fetchAll(),
       (async () => {
         contacts.value = await contactService.getAll();
       })(),

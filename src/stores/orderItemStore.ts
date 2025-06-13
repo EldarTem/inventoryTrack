@@ -22,8 +22,8 @@ export const useOrderItemStore = defineStore('orderItem', () => {
     price: number
     sectionId: string
   }) {
-    const newOrderItem = await orderItemService.create(orderItem)
-    orderItems.value.push(newOrderItem)
+    await orderItemService.create(orderItem)
+    setTimeout(fetchAllByOrder, 200)
   }
 
   async function createBulk(
@@ -49,9 +49,8 @@ export const useOrderItemStore = defineStore('orderItem', () => {
       sectionId: string
     },
   ) {
-    const updatedOrderItem = await orderItemService.update(id, orderItem)
-    const index = orderItems.value.findIndex((oi) => oi.id === id)
-    if (index !== -1) orderItems.value[index] = updatedOrderItem
+    await orderItemService.update(id, orderItem)
+    setTimeout(fetchAllByOrder, 200)
   }
 
   async function remove(id: string) {

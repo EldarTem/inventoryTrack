@@ -26,7 +26,7 @@
         <Column field="price" header="Цена" />
         <Column header="Ед.изм.">
           <template #body="{ data }">
-            {{ data.unit?.displayValue || "—" }}
+            {{ data.unit?.displayValue || data.unit || "—" }}
           </template>
         </Column>
         <Column field="quantity" header="Остаток" />
@@ -100,7 +100,6 @@ const filters = ref<{
   date: null,
 });
 
-
 const filteredProducts = computed(() => {
   console.log("Computing filteredProducts, products:", productStore.products);
   const products = productStore.products || [];
@@ -143,14 +142,14 @@ onMounted(async () => {
 
 function openCreateModal() {
   selectedProduct.value = {
-    id: "",
+    id: "", // Оставляем, но не отправляем в create
     name: "Новый товар",
     code: "CODE_" + Date.now(),
     barcode: "BARCODE_" + Date.now(),
     description: "",
     quantity: 0,
     price: 0,
-    unit: 0,
+    unit: "piece", // Изменено на строку
     categoryId: "a11e7f84-0482-4dfc-8f8c-13b7cf41cebe",
     sectionId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
     supplierId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
@@ -172,10 +171,20 @@ function closeModal() {
 
 async function saveProduct(product: Product) {
   try {
+    const productData = {
+      name: product.name,
+      code: product.code,
+      barcode: product.barcode,
+      description: product.description,
+      quantity: product.quantity,
+      price: product.price,
+      unit: product.unit, // Убедись, что это строка, например, "piece"
+      categoryId: product.categoryId,
+      sectionId: product.sectionId,
+      supplierId: product.supplierId,
+    };
     if (isEditMode.value) {
-      await productStore.update(product.id, {
-        ...product,
-      });
+      await productStore.update(product.id, productData);
       toast.add({
         severity: "success",
         summary: "Успех",
@@ -183,9 +192,7 @@ async function saveProduct(product: Product) {
         life: 3000,
       });
     } else {
-      await productStore.create({
-        ...product,
-      });
+      await productStore.create(productData);
       toast.add({
         severity: "success",
         summary: "Успех",
@@ -228,6 +235,4 @@ async function deleteProduct(id: string) {
     });
   }
 }
-
-
 </script>

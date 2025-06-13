@@ -21,17 +21,16 @@ export const useWarehouseStore = defineStore('warehouse', () => {
     description: string
     ownerId: string
   }) {
-    const newWarehouse = await warehouseService.create(warehouse)
-    warehouses.value.push(newWarehouse)
+    await warehouseService.create(warehouse)
+    setTimeout(fetchAll, 200)
   }
 
   async function update(
     id: string,
     warehouse: { name: string; address: string; description: string; ownerId: string },
   ) {
-    const updatedWarehouse = await warehouseService.update(id, warehouse)
-    const index = warehouses.value.findIndex((w) => w.id === id)
-    if (index !== -1) warehouses.value[index] = updatedWarehouse
+    await warehouseService.update(id, warehouse)
+    setTimeout(fetchAll, 200)
   }
 
   async function remove(id: string) {
@@ -52,17 +51,16 @@ export const useWarehouseStore = defineStore('warehouse', () => {
     warehouseId: string
     description: string
   }) {
-    const newSection = await warehouseService.createSection(section)
-    sections.value.push(newSection)
+    await warehouseService.createSection(section)
+    setTimeout(fetchAllSections, 200)
   }
 
   async function updateSection(
     id: string,
     section: { code: string; warehouseId: string; description: string },
   ) {
-    const updatedSection = await warehouseService.updateSection(id, section)
-    const index = sections.value.findIndex((s) => s.id === id)
-    if (index !== -1) sections.value[index] = updatedSection
+    await warehouseService.updateSection(id, section)
+    setTimeout(fetchAllSections, 200)
   }
 
   async function removeSection(id: string) {

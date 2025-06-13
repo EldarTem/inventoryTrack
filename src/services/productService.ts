@@ -8,7 +8,7 @@ interface CreateProduct {
   description: string
   quantity: number
   price: number
-  unit: number
+  unit: string // Изменено с number на string
   categoryId: string
   sectionId: string
   supplierId: string
@@ -41,13 +41,15 @@ export const productService = {
   },
 
   async create(product: CreateProduct): Promise<Product> {
-    const response = await post<Product, CreateProduct>('/products', product)
+    console.log('Sending create request:', { dto: product })
+    const response = await post<Product, { dto: CreateProduct }>('/products', { dto: product })
     if (response.error) throw new Error(response.error)
     return response.data
   },
 
   async update(id: string, product: CreateProduct): Promise<Product> {
-    const response = await put<Product, CreateProduct>(`/products/${id}`, product)
+    console.log('Sending update request:', { dto: product })
+    const response = await put<Product, { dto: CreateProduct }>(`/products/${id}`, { dto: product })
     if (response.error) throw new Error(response.error)
     return response.data
   },
@@ -66,7 +68,7 @@ export const productService = {
       )
     const query = new URLSearchParams(queryParams).toString()
     const response = await get<Product[]>(`/products/filter?${query}`)
-    console.log('productService.filter response:', response) 
+    console.log('productService.filter response:', response)
     if (response.error) throw new Error(response.error)
     return response.data || []
   },

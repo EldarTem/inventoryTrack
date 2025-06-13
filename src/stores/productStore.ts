@@ -42,18 +42,13 @@ export const useProductStore = defineStore('product', () => {
     description: string
     quantity: number
     price: number
-    unit: number
+    unit: string
     categoryId: string
     sectionId: string
     supplierId: string
   }) {
-    try {
-      const newProduct = await productService.create(product)
-      products.value.push(newProduct)
-    } catch (error) {
-      console.error('Failed to create product:', error)
-      throw error
-    }
+    await productService.create(product)
+    setTimeout(fetchAll, 200)
   }
 
   async function update(
@@ -65,20 +60,14 @@ export const useProductStore = defineStore('product', () => {
       description: string
       quantity: number
       price: number
-      unit: number
+      unit: string
       categoryId: string
       sectionId: string
       supplierId: string
     },
   ) {
-    try {
-      const updatedProduct = await productService.update(id, product)
-      const index = products.value.findIndex((p) => p.id === id)
-      if (index !== -1) products.value[index] = updatedProduct
-    } catch (error) {
-      console.error('Failed to update product:', error)
-      throw error
-    }
+    await productService.update(id, product)
+    setTimeout(fetchAll, 200)
   }
 
   async function remove(id: string) {

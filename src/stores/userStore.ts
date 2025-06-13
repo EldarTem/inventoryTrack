@@ -1,4 +1,3 @@
-
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { userService } from '@/services/userService'
@@ -21,22 +20,21 @@ export const useUserStore = defineStore('user', () => {
     role: string
     contactId: string
   }) {
-    const newUser = await userService.create(user)
-    users.value.push(newUser)
+    await userService.create(user)
+    setTimeout(fetchAll, 200)
   }
 
   async function update(
     id: string,
     user: {
       login: string
-      password?: string 
+      password?: string
       role: string
       contactId: string
     },
   ) {
-    const updatedUser = await userService.update(id, user)
-    const index = users.value.findIndex((u) => u.id === id)
-    if (index !== -1) users.value[index] = updatedUser
+    await userService.update(id, user)
+    setTimeout(fetchAll, 200)
   }
 
   async function updateStatus(id: string, isActive: boolean) {

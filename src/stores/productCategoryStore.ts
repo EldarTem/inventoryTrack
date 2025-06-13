@@ -20,9 +20,8 @@ export const useProductCategoryStore = defineStore('productCategory', () => {
   }
 
   async function update(id: string, category: { name: string; description: string }) {
-    const updatedCategory = await productCategoryService.update(id, category)
-    const index = categories.value.findIndex((c) => c.id === id)
-    if (index !== -1) categories.value[index] = updatedCategory
+    await productCategoryService.update(id, category)
+    setTimeout(fetchAll, 200)
   }
 
   async function remove(id: string) {

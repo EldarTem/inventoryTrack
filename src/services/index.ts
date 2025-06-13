@@ -1,4 +1,4 @@
-const BASE_URL = 'https://194.67.84.131:8443/api'
+const BASE_URL = 'https://80.78.243.224:8443/api'
 
 interface ApiResponse<T> {
   data: T

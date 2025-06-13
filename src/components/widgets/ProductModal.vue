@@ -91,6 +91,54 @@
           class="p-inputtext-lg"
         />
       </div>
+      <div class="form-field">
+        <label for="categoryId">Категория</label>
+        <Dropdown
+          id="categoryId"
+          v-model="localProduct.categoryId"
+          :options="categories"
+          optionLabel="name"
+          optionValue="id"
+          placeholder="Выберите категорию"
+          class="p-inputtext-lg"
+          :class="{ 'p-invalid': errors.categoryId }"
+        />
+        <small v-if="errors.categoryId" class="p-error">{{
+          errors.categoryId
+        }}</small>
+      </div>
+      <div class="form-field">
+        <label for="sectionId">Секция склада</label>
+        <Dropdown
+          id="sectionId"
+          v-model="localProduct.sectionId"
+          :options="sections"
+          optionLabel="code"
+          optionValue="id"
+          placeholder="Выберите секцию"
+          class="p-inputtext-lg"
+          :class="{ 'p-invalid': errors.sectionId }"
+        />
+        <small v-if="errors.sectionId" class="p-error">{{
+          errors.sectionId
+        }}</small>
+      </div>
+      <div class="form-field">
+        <label for="supplierId">Поставщик</label>
+        <Dropdown
+          id="supplierId"
+          v-model="localProduct.supplierId"
+          :options="suppliers"
+          optionLabel="name"
+          optionValue="id"
+          placeholder="Выберите поставщика"
+          class="p-inputtext-lg"
+          :class="{ 'p-invalid': errors.supplierId }"
+        />
+        <small v-if="errors.supplierId" class="p-error">{{
+          errors.supplierId
+        }}</small>
+      </div>
       <div class="form-field buttons">
         <Button
           label="Отмена"
@@ -110,14 +158,22 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watch } from "vue";
+import { ref, watch, onMounted } from "vue";
 import Dialog from "primevue/dialog";
 import InputText from "primevue/inputtext";
 import Textarea from "primevue/textarea";
 import InputNumber from "primevue/inputnumber";
 import Dropdown from "primevue/dropdown";
 import Button from "primevue/button";
-import type { Product } from "@/types/models";
+import { useProductCategoryStore } from "@/stores/productCategoryStore";
+import { useWarehouseStore } from "@/stores/warehouseStore";
+import { useOrganizationStore } from "@/stores/organizationStore";
+import type {
+  Product,
+  ProductCategory,
+  WarehouseSection,
+  Organization,
+} from "@/types/models";
 
 const props = defineProps<{
   visible: boolean;
@@ -130,6 +186,10 @@ const emit = defineEmits<{
   (e: "cancel"): void;
 }>();
 
+const productCategoryStore = useProductCategoryStore();
+const warehouseStore = useWarehouseStore();
+const organizationStore = useOrganizationStore();
+
 const localProduct = ref<Product>({
   id: "",
   name: "",
@@ -138,10 +198,10 @@ const localProduct = ref<Product>({
   description: "",
   quantity: 0,
   price: 0,
-  unit: 0,
-  categoryId: "a11e7f84-0482-4dfc-8f8c-13b7cf41cebe",
-  sectionId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-  supplierId: "a1b2c3d4-1111-2222-3333-444455556666",
+  unit: "piece",
+  categoryId: "",
+  sectionId: "",
+  supplierId: "",
 });
 
 const errors = ref({
@@ -150,13 +210,35 @@ const errors = ref({
   barcode: "",
   quantity: "",
   price: "",
+  categoryId: "",
+  sectionId: "",
+  supplierId: "",
 });
 
 const units = ref([
-  { label: "Штука", value: 0 },
-  { label: "Килограмм", value: 1 },
-  { label: "Литр", value: 2 },
+  { label: "Штука", value: "piece" },
+  { label: "Килограмм", value: "kilogram" },
+  { label: "Литр", value: "liter" },
 ]);
+
+const categories = ref<ProductCategory[]>([]);
+const sections = ref<WarehouseSection[]>([]);
+const suppliers = ref<Organization[]>([]);
+
+onMounted(async () => {
+  try {
+    await Promise.all([
+      productCategoryStore.fetchAll(),
+      warehouseStore.fetchAllSections(),
+      organizationStore.filter("supplier"), // Предполагаем, что поставщики имеют тип "supplier"
+    ]);
+    categories.value = productCategoryStore.categories;
+    sections.value = warehouseStore.sections;
+    suppliers.value = organizationStore.organizations;
+  } catch (error) {
+    console.error("Failed to load dropdown data:", error);
+  }
+});
 
 watch(
   () => props.product,
@@ -169,7 +251,16 @@ watch(
 );
 
 function validateForm() {
-  errors.value = { name: "", code: "", barcode: "", quantity: "", price: "" };
+  errors.value = {
+    name: "",
+    code: "",
+    barcode: "",
+    quantity: "",
+    price: "",
+    categoryId: "",
+    sectionId: "",
+    supplierId: "",
+  };
   let isValid = true;
 
   if (!localProduct.value.name) {
@@ -190,6 +281,18 @@ function validateForm() {
   }
   if (localProduct.value.price < 0) {
     errors.value.price = "Цена не может быть отрицательной";
+    isValid = false;
+  }
+  if (!localProduct.value.categoryId) {
+    errors.value.categoryId = "Категория обязательна";
+    isValid = false;
+  }
+  if (!localProduct.value.sectionId) {
+    errors.value.sectionId = "Секция склада обязательна";
+    isValid = false;
+  }
+  if (!localProduct.value.supplierId) {
+    errors.value.supplierId = "Поставщик обязателен";
     isValid = false;
   }
 

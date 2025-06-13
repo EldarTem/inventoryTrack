@@ -10,6 +10,7 @@ interface CreateOrder {
   warehouseId: string
   organizationId: string
   contactId: string
+  createdById?: string
 }
 
 export const orderService = {

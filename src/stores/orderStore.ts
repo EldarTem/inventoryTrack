@@ -24,8 +24,12 @@ export const useOrderStore = defineStore('order', () => {
     organizationId: string
     contactId: string
   }) {
-    const newOrder = await orderService.create(order)
-    orders.value.push(newOrder)
+    // Просто подставь contactId как createdById
+    await orderService.create({
+      ...order,
+      createdById: order.contactId,
+    })
+    setTimeout(fetchAll, 200)
   }
 
   async function update(
@@ -40,9 +44,8 @@ export const useOrderStore = defineStore('order', () => {
       contactId: string
     },
   ) {
-    const updatedOrder = await orderService.update(id, order)
-    const index = orders.value.findIndex((o) => o.id === id)
-    if (index !== -1) orders.value[index] = updatedOrder
+    await orderService.update(id, order)
+    setTimeout(fetchAll, 200)
   }
 
   async function remove(id: string) {
@@ -51,9 +54,8 @@ export const useOrderStore = defineStore('order', () => {
   }
 
   async function approve(id: string) {
-    const updatedOrder = await orderService.approve(id)
-    const index = orders.value.findIndex((o) => o.id === id)
-    if (index !== -1) orders.value[index] = updatedOrder
+    await orderService.approve(id)
+    setTimeout(fetchAll, 200)
   }
 
   return {
