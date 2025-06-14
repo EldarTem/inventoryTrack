@@ -230,7 +230,7 @@ onMounted(async () => {
     await Promise.all([
       productCategoryStore.fetchAll(),
       warehouseStore.fetchAllSections(),
-      organizationStore.filter("supplier"), // Предполагаем, что поставщики имеют тип "supplier"
+      organizationStore.filter("supplier"),
     ]);
     categories.value = productCategoryStore.categories;
     sections.value = warehouseStore.sections;

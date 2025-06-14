@@ -88,7 +88,7 @@ async function handleLogin() {
 
   try {
     await authStore.login(form);
-    console.log("LoginPage: User after login:", authStore.user); 
+    console.log("LoginPage: User after login:", authStore.user);
     const userRole = authStore.user?.role?.code;
     if (userRole === "manager") {
       router.push("/manager/invoices");
@@ -116,6 +116,9 @@ async function handleLogin() {
 </script>
 
 <style scoped>
+#password {
+  padding: 0;
+}
 .login-page {
   display: flex;
   justify-content: center;
@@ -123,6 +126,8 @@ async function handleLogin() {
   min-height: 100vh;
   padding: 1rem;
   font-family: "Montserrat", sans-serif;
+  max-width: 600px;
+  width: 100%;
 }
 
 .login-card {
@@ -205,6 +210,7 @@ async function handleLogin() {
 .form-field.buttons {
   display: flex;
   justify-content: center;
+  max-width: none; /* Убираем ограничение ширины для кнопки */
 }
 
 .form-field :deep(.p-button) {

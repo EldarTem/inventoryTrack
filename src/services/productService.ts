@@ -42,7 +42,8 @@ export const productService = {
 
   async create(product: CreateProduct): Promise<Product> {
     console.log('Sending create request:', { dto: product })
-    const response = await post<Product, { dto: CreateProduct }>('/products', { dto: product })
+    const response = await post<Product, CreateProduct>('/products', product)
+
     if (response.error) throw new Error(response.error)
     return response.data
   },
