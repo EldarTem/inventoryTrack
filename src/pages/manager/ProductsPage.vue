@@ -156,7 +156,7 @@ function openCreateModal() {
     description: "",
     quantity: 0,
     price: 0,
-    unit: 0,
+    unit: "",
     categoryId: "a11e7f84-0482-4dfc-8f8c-13b7cf41cebe",
     sectionId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
     supplierId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
