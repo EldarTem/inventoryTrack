@@ -6,15 +6,7 @@
     <div v-else>
       <TabView v-model:activeIndex="activeIndex">
         <TabPanel header="Заказы" value="orders">
-          <div class="actions-container">
-            <Button
-              v-if="filteredOrders && filteredOrders.length"
-              label="Добавить заказ"
-              icon="pi pi-plus"
-              class="p-button-lg"
-              @click="openCreateModal"
-            />
-          </div>
+          <div class="actions-container"></div>
 
           <DataTable
             v-if="filteredOrders && filteredOrders.length"
@@ -62,7 +54,6 @@
               label="Создать первый заказ"
               icon="pi pi-plus"
               class="p-button-lg"
-              @click="openCreateModal"
             />
           </div>
         </TabPanel>
@@ -70,14 +61,6 @@
           <OrderItemsTab />
         </TabPanel>
       </TabView>
-      <OrderModal
-        v-if="showModal"
-        :visible="showModal"
-        :order="selectedOrder"
-        :isEdit="isEditMode"
-        @save="saveOrder"
-        @cancel="closeModal"
-      />
     </div>
   </div>
 </template>
@@ -86,7 +69,6 @@
 import { computed, ref, onMounted } from "vue";
 import { useOrderStore } from "@/stores/orderStore";
 import { useToast } from "primevue/usetoast";
-import OrderModal from "@/components/widgets/OrderModal.vue";
 import OrderItemsTab from "@/components/OrderItemsTab.vue";
 import TabView from "primevue/tabview";
 import TabPanel from "primevue/tabpanel";
@@ -157,72 +139,10 @@ onMounted(async () => {
   }
 });
 
-function openCreateModal() {
-  selectedOrder.value = {
-    number: "",
-    type: { code: "incoming", displayValue: "Входящий" },
-    status: { code: "draft", displayValue: "Черновик" },
-    organization: { id: "", displayValue: "" },
-    contact: { id: "", displayValue: "" },
-    warehouse: { id: "", displayValue: "" },
-    comment: "",
-  };
-  isEditMode.value = false;
-  showModal.value = true;
-}
-
 function openEditModal(order: Order) {
   selectedOrder.value = { ...order };
   isEditMode.value = true;
   showModal.value = true;
-}
-
-function closeModal() {
-  showModal.value = false;
-  selectedOrder.value = null;
-}
-
-async function saveOrder(order: Order) {
-  try {
-    const orderData = {
-      number: order.number,
-      type: order.type.code,
-      status: order.status.code,
-      comment: order.comment,
-      warehouseId: order.warehouse.id,
-      organizationId: order.organization.id,
-      contactId: order.contact.id,
-    };
-    if (isEditMode.value && order.id) {
-      await orderStore.update(order.id, orderData);
-      toast.add({
-        severity: "success",
-        summary: "Успех",
-        detail: "Заказ обновлён",
-        life: 3000,
-      });
-    } else {
-      await orderStore.create(orderData);
-      toast.add({
-        severity: "success",
-        summary: "Успех",
-        detail: "Заказ создан",
-        life: 3000,
-      });
-    }
-  } catch (err) {
-    toast.add({
-      severity: "error",
-      summary: "Ошибка",
-      detail:
-        "Не удалось сохранить заказ: " +
-        (err instanceof Error ? err.message : "Неизвестная ошибка"),
-      life: 3000,
-    });
-  } finally {
-    showModal.value = false;
-    selectedOrder.value = null;
-  }
 }
 
 async function deleteOrder(id: string) {

@@ -23,13 +23,13 @@ export const useOrderStore = defineStore('order', () => {
     warehouseId: string
     organizationId: string
     contactId: string
-  }) {
-    // Просто подставь contactId как createdById
-    await orderService.create({
+  }): Promise<Order> {
+    const created = await orderService.create({
       ...order,
       createdById: order.contactId,
     })
     setTimeout(fetchAll, 200)
+    return created
   }
 
   async function update(

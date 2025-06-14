@@ -51,9 +51,17 @@ export interface OrderType {
   code: string
   displayValue: string
 }
-
+export interface NewOrder {
+  number: string
+  type: { code: string; displayValue: string }
+  status: { code: string; displayValue: string }
+  organization: { id: string; displayValue: string }
+  contact: { id: string; displayValue: string }
+  warehouse: { id: string; displayValue: string }
+  comment?: string
+}
 export interface Order {
-  id?: string
+  id: string
   number: string
   approvedAt?: string
   type: OrderType
