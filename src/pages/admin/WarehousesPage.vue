@@ -1,5 +1,6 @@
 <template>
   <div class="warehouses-page">
+    <h1>Страница складов и секций</h1>
     <ProgressSpinner v-if="isLoading" class="loader" />
     <div v-else-if="error" class="error">{{ error }}</div>
     <div v-else>

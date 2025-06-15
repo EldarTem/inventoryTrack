@@ -1,6 +1,5 @@
 <template>
   <aside class="sidebar" :class="{ collapsed: isCollapsed }">
-
     <div class="sidebar-header">
       <img src="@/assets/logo-label.svg" alt="Логотип" class="logo" />
     </div>
@@ -85,7 +84,11 @@ const menuItems = computed<MenuItem[]>(() => {
   }
   if (userRole.value === "storekeeper" && isAuthenticated.value) {
     items.push(
-      { label: "Главная", icon: "pi pi-home", route: "StorekeeperDashboard" },
+      {
+        label: "Заказы",
+        icon: "pi pi-receipt",
+        route: "StorekeeperDashboard",
+      },
       {
         label: "Инвентаризация",
         icon: "pi pi-list",
@@ -95,12 +98,12 @@ const menuItems = computed<MenuItem[]>(() => {
   }
   if (userRole.value === "administrator" && isAuthenticated.value) {
     items.push(
-      { label: "Главная", icon: "pi pi-home", route: "AdminDashboard" },
+      { label: "Заказы", icon: "pi pi-receipt", route: "AdminDashboard" },
       { label: "Товары", icon: "pi pi-box", route: "AdminProducts" },
       { label: "Склады", icon: "pi pi-building", route: "AdminWarehouses" },
       { label: "Категории", icon: "pi pi-tags", route: "AdminCategories" },
-      { label: "Поставщики", icon: "pi pi-users", route: "AdminSuppliers" },
-      { label: "Сотрудники", icon: "pi pi-user", route: "AdminUsers" }
+      { label: "Поставщики", icon: "pi pi-truck", route: "AdminSuppliers" },
+      { label: "Сотрудники", icon: "pi pi-id-card", route: "AdminUsers" }
     );
   }
 

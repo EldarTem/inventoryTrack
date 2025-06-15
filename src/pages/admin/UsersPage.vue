@@ -1,3 +1,87 @@
+<template>
+  <div class="users-page">
+    <h1>Страница сотрудников и контактов</h1>
+    <TabView>
+      <TabPanel header="Сотрудники" value="users">
+        <ProgressSpinner v-if="isLoading" class="loader" />
+        <div v-else-if="error" class="error">{{ error }}</div>
+        <div v-else>
+          <div class="actions-container">
+            <Button
+              v-if="filteredUsers && filteredUsers.length"
+              label="Добавить сотрудника"
+              icon="pi pi-plus"
+              class="p-button-lg"
+              @click="openCreateModal"
+            />
+          </div>
+
+          <DataTable
+            v-if="filteredUsers && filteredUsers.length"
+            :value="filteredUsers"
+            :columns="columns"
+            row-key="id"
+            paginator
+            :rows="10"
+            class="users-table"
+            scrollable
+          >
+            <Column field="login" header="Логин" frozen />
+            <Column header="Контакт">
+              <template #body="{ data }">
+                {{ data.contact?.displayValue || "—" }}
+              </template>
+            </Column>
+            <Column header="Роль">
+              <template #body="{ data }">
+                {{ data.role?.displayValue || "—" }}
+              </template>
+            </Column>
+            <Column header="Действия">
+              <template #body="{ data }">
+                <div class="actions-container">
+                  <Button
+                    icon="pi pi-pencil"
+                    severity="warning"
+                    class="p-button-sm"
+                    @click.stop="openEditModal(data)"
+                  />
+                  <Button
+                    icon="pi pi-trash"
+                    severity="danger"
+                    class="p-button-sm"
+                    @click.stop="confirmDelete(data.id)"
+                  />
+                </div>
+              </template>
+            </Column>
+          </DataTable>
+          <div v-else class="no-data">
+            <p>Сотрудники отсутствуют</p>
+            <Button
+              label="Создать первого сотрудника"
+              icon="pi pi-plus"
+              class="p-button-lg"
+              @click="openCreateModal"
+            />
+          </div>
+          <UserModal
+            v-if="showModal"
+            :visible="showModal"
+            :user="selectedUser"
+            :isEdit="isEditMode"
+            @save="saveUser"
+            @cancel="closeModal"
+          />
+        </div>
+      </TabPanel>
+      <TabPanel header="Контакты" value="contacts">
+        <ContactsTab />
+      </TabPanel>
+    </TabView>
+  </div>
+</template>
+
 <script lang="ts" setup>
 import { computed, ref, onMounted } from "vue";
 import { useUserStore } from "@/stores/userStore";
@@ -185,86 +269,3 @@ function confirmDelete(id: string) {
   });
 }
 </script>
-
-<template>
-  <div class="users-page">
-    <TabView>
-      <TabPanel header="Сотрудники" value="users">
-        <ProgressSpinner v-if="isLoading" class="loader" />
-        <div v-else-if="error" class="error">{{ error }}</div>
-        <div v-else>
-          <div class="actions-container">
-            <Button
-              v-if="filteredUsers && filteredUsers.length"
-              label="Добавить сотрудника"
-              icon="pi pi-plus"
-              class="p-button-lg"
-              @click="openCreateModal"
-            />
-          </div>
-
-          <DataTable
-            v-if="filteredUsers && filteredUsers.length"
-            :value="filteredUsers"
-            :columns="columns"
-            row-key="id"
-            paginator
-            :rows="10"
-            class="users-table"
-            scrollable
-          >
-            <Column field="login" header="Логин" frozen />
-            <Column header="Контакт">
-              <template #body="{ data }">
-                {{ data.contact?.displayValue || "—" }}
-              </template>
-            </Column>
-            <Column header="Роль">
-              <template #body="{ data }">
-                {{ data.role?.displayValue || "—" }}
-              </template>
-            </Column>
-            <Column header="Действия">
-              <template #body="{ data }">
-                <div class="actions-container">
-                  <Button
-                    icon="pi pi-pencil"
-                    severity="warning"
-                    class="p-button-sm"
-                    @click.stop="openEditModal(data)"
-                  />
-                  <Button
-                    icon="pi pi-trash"
-                    severity="danger"
-                    class="p-button-sm"
-                    @click.stop="confirmDelete(data.id)"
-                  />
-                </div>
-              </template>
-            </Column>
-          </DataTable>
-          <div v-else class="no-data">
-            <p>Сотрудники отсутствуют</p>
-            <Button
-              label="Создать первого сотрудника"
-              icon="pi pi-plus"
-              class="p-button-lg"
-              @click="openCreateModal"
-            />
-          </div>
-          <UserModal
-            v-if="showModal"
-            :visible="showModal"
-            :user="selectedUser"
-            :isEdit="isEditMode"
-            @save="saveUser"
-            @cancel="closeModal"
-          />
-        </div>
-      </TabPanel>
-      <TabPanel header="Контакты" value="contacts">
-        <ContactsTab />
-      </TabPanel>
-    </TabView>
-  </div>
-</template>

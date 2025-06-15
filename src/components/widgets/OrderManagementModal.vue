@@ -103,10 +103,10 @@
         <table class="order-items-table">
           <thead>
             <tr>
-              <th>Товар</th>
-              <th>Кол-во</th>
-              <th>Цена</th>
-              <th>Секция</th>
+              <th style="width: 2rem">Товар</th>
+              <th style="width: 2rem">Кол-во</th>
+              <th style="width: 2rem">Цена</th>
+              <th style="width: 2rem">Секция</th>
               <th style="width: 2rem"></th>
             </tr>
           </thead>
@@ -208,7 +208,9 @@ import { ref, watch, computed, onMounted } from "vue";
 import { useWarehouseStore } from "@/stores/warehouseStore";
 import { useOrganizationStore } from "@/stores/organizationStore";
 import { useProductStore } from "@/stores/productStore";
+import { useOrderItemStore } from "@/stores/orderItemStore";
 import { contactService } from "@/services/contactService";
+
 import Dialog from "primevue/dialog";
 import InputText from "primevue/inputtext";
 import Dropdown from "primevue/dropdown";
@@ -239,7 +241,7 @@ const emit = defineEmits<{
   ): void;
   (e: "cancel"): void;
 }>();
-
+const orderItemStore = useOrderItemStore();
 const warehouseStore = useWarehouseStore();
 const organizationStore = useOrganizationStore();
 const productStore = useProductStore();
@@ -305,8 +307,19 @@ onMounted(async () => {
         contacts.value = await contactService.getAll();
       })(),
     ]);
+    // Загружаем товары заказа, если это режим редактирования и есть order.id
+    if (props.isEdit && props.order && "id" in props.order && props.order.id) {
+      await orderItemStore.fetchAllByOrder(props.order.id);
+      localOrderItems.value = [...orderItemStore.orderItems];
+    }
   } catch (err) {
     console.error("Ошибка загрузки данных:", err);
+    toast.add({
+      severity: "error",
+      summary: "Ошибка",
+      detail: "Не удалось загрузить данные",
+      life: 3000,
+    });
   }
 });
 
@@ -391,7 +404,7 @@ function updateContact(newValue: string) {
 function addOrderItem() {
   localOrderItems.value.push({
     productId: "",
-    orderId: orderId.value || "", 
+    orderId: orderId.value || "",
     quantity: 1,
     price: 0,
     sectionId: "",

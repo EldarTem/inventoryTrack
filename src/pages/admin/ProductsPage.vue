@@ -1,5 +1,6 @@
 <template>
   <div class="products-page">
+    <h1>Страница товаров</h1>
     <ProgressSpinner v-if="isLoading" class="loader" />
     <div v-else-if="error" class="error">{{ error }}</div>
     <div v-else>
@@ -142,7 +143,7 @@ onMounted(async () => {
 
 function openCreateModal() {
   selectedProduct.value = {
-    id: "", // Оставляем, но не отправляем в create
+    id: "",
     name: "Новый товар",
     code: "CODE_" + Date.now(),
     barcode: "BARCODE_" + Date.now(),

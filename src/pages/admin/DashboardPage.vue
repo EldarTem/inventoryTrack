@@ -297,12 +297,6 @@
                 </DataTable>
                 <div v-else class="no-data">
                   <p>Элементы заказа отсутствуют</p>
-                  <Button
-                    label="Создать первый элемент"
-                    icon="pi pi-plus"
-                    class="p-button-lg"
-                    @click="openCreateOrderItemModal(data)"
-                  />
                 </div>
               </div>
             </div>
@@ -327,6 +321,14 @@
         @save="onSave"
         @cancel="onCancel"
       />
+      <OrderItemModal
+        v-if="showOrderItemModal"
+        :visible="showOrderItemModal"
+        :order-item="selectedOrderItem"
+        :is-edit="isOrderItemEditMode"
+        @save="onSaveOrderItem"
+        @cancel="onCancelOrderItem"
+      />
       <Toast />
     </div>
   </div>
@@ -338,6 +340,7 @@ import { useOrderStore } from "@/stores/orderStore";
 import { useOrderItemStore } from "@/stores/orderItemStore";
 import { useToast } from "primevue/usetoast";
 import OrderManagementModal from "@/components/widgets/OrderManagementModal.vue";
+import OrderItemModal from "@/components/widgets/OrderItemModal.vue";
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
 import Button from "primevue/button";
@@ -360,6 +363,8 @@ const isLoading = ref(false);
 const error = ref<string | null>(null);
 const showModal = ref(false);
 const isEditMode = ref(false);
+const showOrderItemModal = ref(false);
+const isOrderItemEditMode = ref(false);
 const selectedOrder = ref<Order | NewOrder | null>(null);
 const selectedOrderItem = ref<OrderItem | null>(null);
 const expandedRows = ref<{ [key: string]: boolean }>({});
@@ -499,12 +504,12 @@ function openCreateOrderItemModal(order: Order) {
   selectedOrderItem.value = {
     productId: "",
     orderId: order.id,
-    quantity: 0,
+    quantity: 1,
     price: 0,
     sectionId: "",
   };
-  isEditMode.value = true;
-  showModal.value = true;
+  isOrderItemEditMode.value = false;
+  showOrderItemModal.value = true;
 }
 
 function openEditOrderItemModal(orderItem: OrderItem) {
@@ -513,13 +518,18 @@ function openEditOrderItemModal(orderItem: OrderItem) {
     selectedOrder.value = { ...order };
   }
   selectedOrderItem.value = { ...orderItem };
-  isEditMode.value = true;
-  showModal.value = true;
+  isOrderItemEditMode.value = true;
+  showOrderItemModal.value = true;
 }
 
 function onCancel() {
   showModal.value = false;
   selectedOrder.value = null;
+  selectedOrderItem.value = null;
+}
+
+function onCancelOrderItem() {
+  showOrderItemModal.value = false;
   selectedOrderItem.value = null;
 }
 
@@ -585,6 +595,56 @@ async function onSave(payload: {
   } finally {
     showModal.value = false;
     selectedOrder.value = null;
+    selectedOrderItem.value = null;
+  }
+}
+
+async function onSaveOrderItem(orderItem: OrderItem) {
+  try {
+    if (isOrderItemEditMode.value && orderItem.id) {
+      await orderItemStore.update(orderItem.id, {
+        productId: orderItem.productId,
+        orderId: orderItem.orderId,
+        quantity: orderItem.quantity,
+        price: orderItem.price,
+        sectionId: orderItem.sectionId,
+      });
+      toast.add({
+        severity: "success",
+        summary: "Успех",
+        detail: "Элемент заказа обновлён",
+        life: 3000,
+      });
+    } else {
+      await orderItemStore.create({
+        productId: orderItem.productId,
+        orderId: orderItem.orderId,
+        quantity: orderItem.quantity,
+        price: orderItem.price,
+        sectionId: orderItem.sectionId,
+      });
+      toast.add({
+        severity: "success",
+        summary: "Успех",
+        detail: "Элемент заказа создан",
+        life: 3000,
+      });
+    }
+    if (orderItem.orderId) {
+      await orderItemStore.fetchAllByOrder(orderItem.orderId);
+      orderItems.value[orderItem.orderId] = orderItemStore.orderItems;
+    }
+  } catch (err) {
+    toast.add({
+      severity: "error",
+      summary: "Ошибка",
+      detail:
+        "Не удалось сохранить элемент заказа: " +
+        (err instanceof Error ? err.message : "Неизвестная ошибка"),
+      life: 3000,
+    });
+  } finally {
+    showOrderItemModal.value = false;
     selectedOrderItem.value = null;
   }
 }
@@ -774,4 +834,8 @@ const clearFilter = () => {
 .order-items-table {
   max-width: 1150px;
 }
+.p-icon {
+  color: white !important;
+}
+
 </style>
