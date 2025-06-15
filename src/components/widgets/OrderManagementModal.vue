@@ -121,6 +121,7 @@
                   placeholder="Товар"
                   filter
                   :class="{ 'p-invalid': errors.orderItems[index]?.productId }"
+                  @update:model-value="updateProductSection(index, $event)"
                 />
                 <small
                   v-if="errors.orderItems[index]?.productId"
@@ -292,10 +293,12 @@ const headerText = computed(() =>
   props.isEdit ? "Редактировать заказ" : "Создать заказ"
 );
 const toast = useToast();
+
 onMounted(async () => {
   try {
     await Promise.all([
       warehouseStore.fetchAll(),
+      warehouseStore.fetchAllSections(),
       organizationStore.fetchAll(),
       productStore.fetchAll(),
       (async () => {
@@ -312,6 +315,12 @@ watch(
   (newOrder) => {
     if (newOrder) {
       localOrder.value = { ...newOrder };
+      if ("id" in newOrder && newOrder.id) {
+        localOrderItems.value = localOrderItems.value.map((item) => ({
+          ...item,
+          orderId: newOrder.id,
+        }));
+      }
     }
   },
   { immediate: true }
@@ -328,6 +337,28 @@ watch(
   },
   { immediate: true }
 );
+
+watch(
+  localOrderItems,
+  (newItems) => {
+    newItems.forEach((item) => {
+      if (item.productId && !item.sectionId) {
+        const product = products.value.find((p) => p.id === item.productId);
+        if (product && product.sectionId) {
+          item.sectionId = product.sectionId;
+        }
+      }
+    });
+  },
+  { deep: true }
+);
+
+function updateProductSection(index: number, productId: string) {
+  const product = products.value.find((p) => p.id === productId);
+  if (product && product.sectionId) {
+    localOrderItems.value[index].sectionId = product.sectionId;
+  }
+}
 
 function updateWarehouse(newValue: string) {
   const warehouse = warehouses.value.find(
@@ -360,7 +391,7 @@ function updateContact(newValue: string) {
 function addOrderItem() {
   localOrderItems.value.push({
     productId: "",
-    orderId: orderId.value || "",
+    orderId: orderId.value || "", 
     quantity: 1,
     price: 0,
     sectionId: "",

@@ -1,6 +1,6 @@
-<!-- pages/admin/DashboardPage.vue -->
 <template>
   <div class="orders-page">
+    <h1>Страница заказов</h1>
     <ProgressSpinner v-if="isLoading" class="loader" />
     <div v-else-if="error" class="error">{{ error }}</div>
     <div v-else>
@@ -26,22 +26,186 @@
           />
         </div>
         <DataTable
+          v-model:filters="filters"
           v-model:expandedRows="expandedRows"
           :value="filteredOrders"
           dataKey="id"
           row-key="id"
           paginator
+          showGridlines
           :rows="10"
+          filterDisplay="menu"
+          :loading="isLoading"
+          :globalFilterFields="[
+            'number',
+            'type.displayValue',
+            'status.displayValue',
+            'organization.displayValue',
+            'warehouse.displayValue',
+            'createdBy.displayValue',
+            'comment',
+          ]"
           class="orders-table"
+          scrollable
+          scrollHeight="600px"
           @rowExpand="onRowExpand"
         >
-          <Column expander style="width: 5rem" />
-          <Column field="number" header="Номер" />
-          <Column field="type.displayValue" header="Тип" />
-          <Column field="status.displayValue" header="Статус" />
-          <Column field="organization.displayValue" header="Организация" />
-          <Column field="warehouse.displayValue" header="Склад" />
-          <Column header="Действия">
+          <template #header>
+            <div class="header-table">
+              <Button
+                type="button"
+                icon="pi pi-filter-slash"
+                label="Сбросить"
+                outlined
+                @click="clearFilter"
+              />
+              <IconField>
+                <InputIcon>
+                  <i class="pi pi-search" />
+                </InputIcon>
+                <InputText
+                  v-model="filters['global'].value"
+                  placeholder="Поиск"
+                />
+              </IconField>
+            </div>
+          </template>
+          <template #empty> Заказы не найдены. </template>
+          <template #loading>
+            Загрузка заказов. Пожалуйста, подождите.
+          </template>
+          <Column expander style="width: 5rem; min-width: 5rem" />
+          <Column field="number" header="Номер" style="min-width: 10rem">
+            <template #filter="{ filterModel }">
+              <InputText
+                v-model="filterModel.value"
+                type="text"
+                placeholder="Поиск по номеру"
+              />
+            </template>
+          </Column>
+          <Column
+            field="type.displayValue"
+            header="Тип"
+            filterField="type.displayValue"
+            style="min-width: 10rem"
+          >
+            <template #filter="{ filterModel }">
+              <Select
+                v-model="filterModel.value"
+                :options="orderTypes"
+                placeholder="Выберите тип"
+                showClear
+              />
+            </template>
+          </Column>
+          <Column
+            field="status.displayValue"
+            header="Статус"
+            filterField="status.displayValue"
+            style="min-width: 10rem"
+          >
+            <template #body="{ data }">
+              <Tag
+                :value="data.status.displayValue"
+                :severity="getStatusSeverity(data.status.code)"
+              />
+            </template>
+            <template #filter="{ filterModel }">
+              <Select
+                v-model="filterModel.value"
+                :options="statuses"
+                placeholder="Выберите статус"
+                showClear
+              >
+                <template #option="slotProps">
+                  <Tag
+                    :value="slotProps.option"
+                    :severity="
+                      getStatusSeverity(
+                        slotProps.option === 'Черновик' ? 'draft' : 'approved'
+                      )
+                    "
+                  />
+                </template>
+              </Select>
+            </template>
+          </Column>
+          <Column
+            field="organization.displayValue"
+            header="Организация"
+            filterField="organization.displayValue"
+            style="min-width: 12rem"
+          >
+            <template #filter="{ filterModel }">
+              <InputText
+                v-model="filterModel.value"
+                type="text"
+                placeholder="Поиск по организации"
+              />
+            </template>
+          </Column>
+          <Column
+            field="warehouse.displayValue"
+            header="Склад"
+            filterField="warehouse.displayValue"
+            style="min-width: 12rem"
+          >
+            <template #filter="{ filterModel }">
+              <InputText
+                v-model="filterModel.value"
+                type="text"
+                placeholder="Поиск по складу"
+              />
+            </template>
+          </Column>
+          <Column
+            field="createdBy.displayValue"
+            header="Создал"
+            filterField="createdBy.displayValue"
+            style="min-width: 12rem"
+          >
+            <template #filter="{ filterModel }">
+              <InputText
+                v-model="filterModel.value"
+                type="text"
+                placeholder="Поиск по создателю"
+              />
+            </template>
+          </Column>
+          <Column
+            field="comment"
+            header="Комментарий"
+            filterField="comment"
+            style="min-width: 12rem"
+          >
+            <template #filter="{ filterModel }">
+              <InputText
+                v-model="filterModel.value"
+                type="text"
+                placeholder="Поиск по комментарию"
+              />
+            </template>
+          </Column>
+          <Column
+            field="approvedAt"
+            header="Дата утверждения"
+            filterField="approvedAt"
+            dataType="date"
+            style="min-width: 12rem"
+          >
+            <template #body="{ data }">
+              {{ formatDate(data.approvedAt) }}
+            </template>
+            <template #filter="{ filterModel }">
+              <DatePicker
+                v-model="filterModel.value"
+                dateFormat="dd.mm.yy"
+                placeholder="дд.мм.гггг"
+              />
+            </template>
+          </Column>
+          <Column header="Действия" style="min-width: 12rem">
             <template #body="{ data }">
               <div class="actions-container">
                 <Button
@@ -67,7 +231,7 @@
             </template>
           </Column>
           <template #expansion="{ data }">
-            <div class="p-4">
+            <div class="p-4 order-items-table">
               <h5>Товары для заказа {{ data.number }}</h5>
               <ProgressSpinner
                 v-if="isLoadingOrderItems[data.id]"
@@ -89,16 +253,30 @@
                   v-if="orderItems[data.id] && orderItems[data.id].length"
                   :value="orderItems[data.id]"
                   class="order-items-table"
+                  scrollable
+                  scrollHeight="400px"
                 >
-                  <Column field="productName" header="Товар" />
-                  <Column field="quantity" header="Количество" />
-                  <Column field="price" header="Цена">
+                  <Column
+                    field="productName"
+                    header="Товар"
+                    style="min-width: 12rem"
+                  />
+                  <Column
+                    field="quantity"
+                    header="Количество"
+                    style="min-width: 10rem"
+                  />
+                  <Column field="price" header="Цена" style="min-width: 10rem">
                     <template #body="{ data }">
                       {{ formatCurrency(data.price) }}
                     </template>
                   </Column>
-                  <Column field="sectionName" header="Секция" />
-                  <Column header="Действия">
+                  <Column
+                    field="sectionName"
+                    header="Секция"
+                    style="min-width: 12rem"
+                  />
+                  <Column header="Действия" style="min-width: 12rem">
                     <template #body="{ data: item }">
                       <div class="actions-container">
                         <Button
@@ -165,6 +343,13 @@ import Column from "primevue/column";
 import Button from "primevue/button";
 import ProgressSpinner from "primevue/progressspinner";
 import Toast from "primevue/toast";
+import InputText from "primevue/inputtext";
+import IconField from "primevue/iconfield";
+import InputIcon from "primevue/inputicon";
+import Tag from "primevue/tag";
+import Select from "primevue/select";
+import DatePicker from "primevue/datepicker";
+import { FilterMatchMode, FilterOperator } from "@primevue/core/api";
 import type { Order, NewOrder, OrderItem } from "@/types/models";
 
 const orderStore = useOrderStore();
@@ -182,27 +367,47 @@ const orderItems = ref<{ [key: string]: OrderItem[] }>({});
 const isLoadingOrderItems = ref<{ [key: string]: boolean }>({});
 const orderItemsErrors = ref<{ [key: string]: string }>({});
 
-const filters = ref<{
-  search: string;
-  status: string | undefined;
-  date: Date | null;
-}>({
-  search: "",
-  status: undefined,
-  date: null,
+const statuses = ref(["Черновик", "Утверждён"]);
+const orderTypes = ref(["Приход", "Расход"]);
+
+const filters = ref({
+  global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+  number: {
+    operator: FilterOperator.AND,
+    constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }],
+  },
+  "type.displayValue": {
+    operator: FilterOperator.AND,
+    constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }],
+  },
+  "status.displayValue": {
+    operator: FilterOperator.AND,
+    constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }],
+  },
+  "organization.displayValue": {
+    operator: FilterOperator.AND,
+    constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }],
+  },
+  "warehouse.displayValue": {
+    operator: FilterOperator.AND,
+    constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }],
+  },
+  "createdBy.displayValue": {
+    operator: FilterOperator.AND,
+    constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }],
+  },
+  comment: {
+    operator: FilterOperator.AND,
+    constraints: [{ value: null, matchMode: FilterMatchMode.CONTAINS }],
+  },
+  approvedAt: {
+    operator: FilterOperator.AND,
+    constraints: [{ value: null, matchMode: FilterMatchMode.DATE_IS }],
+  },
 });
 
 const filteredOrders = computed<Order[]>(() => {
-  let result = orderStore.orders ?? [];
-  if (filters.value.search) {
-    result = result.filter((o) =>
-      o.number?.toLowerCase().includes(filters.value.search.toLowerCase())
-    );
-  }
-  if (filters.value.status) {
-    result = result.filter((o) => o.status.code === filters.value.status);
-  }
-  return result;
+  return orderStore.orders ?? [];
 });
 
 onMounted(async () => {
@@ -332,7 +537,9 @@ async function onSave(payload: {
       organizationId: payload.order.organization.id,
       contactId: payload.order.contact.id,
     };
+
     let orderId: string;
+
     if (isEditMode.value && "id" in payload.order && payload.order.id) {
       await orderStore.update(payload.order.id, orderData);
       orderId = payload.order.id;
@@ -344,7 +551,8 @@ async function onSave(payload: {
       });
     } else {
       const createdOrder = await orderStore.create(orderData);
-      orderId = createdOrder.id;
+      orderId =
+        typeof createdOrder === "string" ? createdOrder : createdOrder.id;
       toast.add({
         severity: "success",
         summary: "Успех",
@@ -352,27 +560,18 @@ async function onSave(payload: {
         life: 3000,
       });
     }
+
     if (payload.orderItems.length) {
       const orderItemsData = payload.orderItems.map((item) => ({
         productId: item.productId,
-        orderId: orderId || item.orderId,
+        orderId: orderId,
         quantity: item.quantity,
         price: item.price,
         sectionId: item.sectionId,
         ...(item.id && { id: item.id }),
       }));
+
       await orderItemStore.createBulk(orderItemsData);
-      toast.add({
-        severity: "success",
-        summary: "Успех",
-        detail: "Элементы заказа сохранены",
-        life: 3000,
-      });
-      if (!orderId) {
-        throw new Error("Идентификатор заказа не определен");
-      }
-      await orderItemStore.fetchAllByOrder(orderId);
-      orderItems.value[orderId] = orderItemStore.orderItems;
     }
   } catch (err) {
     toast.add({
@@ -464,6 +663,65 @@ async function approveOrder(id: string) {
 const formatCurrency = (value: number) => {
   return value.toLocaleString("ru-RU", { style: "currency", currency: "RUB" });
 };
+
+const formatDate = (value: string | null) => {
+  if (!value) return "-";
+  const date = new Date(value);
+  return date.toLocaleDateString("ru-RU", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+};
+
+const getStatusSeverity = (status: string): "success" | "warn" => {
+  switch (status) {
+    case "draft":
+      return "warn";
+    case "approved":
+      return "success";
+    default:
+      return "warn";
+  }
+};
+
+const clearFilter = () => {
+  filters.value = {
+    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    number: {
+      operator: FilterOperator.AND,
+      constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }],
+    },
+    "type.displayValue": {
+      operator: FilterOperator.AND,
+      constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }],
+    },
+    "status.displayValue": {
+      operator: FilterOperator.AND,
+      constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }],
+    },
+    "organization.displayValue": {
+      operator: FilterOperator.AND,
+      constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }],
+    },
+    "warehouse.displayValue": {
+      operator: FilterOperator.AND,
+      constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }],
+    },
+    "createdBy.displayValue": {
+      operator: FilterOperator.AND,
+      constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }],
+    },
+    comment: {
+      operator: FilterOperator.AND,
+      constraints: [{ value: null, matchMode: FilterMatchMode.CONTAINS }],
+    },
+    approvedAt: {
+      operator: FilterOperator.AND,
+      constraints: [{ value: null, matchMode: FilterMatchMode.DATE_IS }],
+    },
+  };
+};
 </script>
 
 <style scoped>
@@ -477,6 +735,12 @@ const formatCurrency = (value: number) => {
 }
 .orders-table {
   width: 100%;
+  max-width: 1200px;
+}
+.header-table {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 .order-items-table {
   width: 100%;
@@ -495,5 +759,19 @@ const formatCurrency = (value: number) => {
   text-align: center;
   color: #666;
   margin: 20px;
+}
+
+/* Ensure table cells don't wrap content to force horizontal scrolling */
+:deep(.p-datatable .p-datatable-tbody td),
+:deep(.p-datatable .p-datatable-thead th) {
+  white-space: nowrap;
+}
+
+/* Optional: Ensure table wrapper allows horizontal scrolling */
+:deep(.p-datatable-wrapper) {
+  overflow-x: auto;
+}
+.order-items-table {
+  max-width: 1150px;
 }
 </style>
