@@ -26,5 +26,6 @@ import Toast from "primevue/toast";
 .content {
   flex: 1;
   padding: 20px;
+  overflow: auto;
 }
 </style>

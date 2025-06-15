@@ -75,7 +75,7 @@
             Загрузка заказов. Пожалуйста, подождите.
           </template>
           <Column expander style="width: 5rem; min-width: 5rem" />
-          <Column field="number" header="Номер" style="min-width: 10rem">
+          <Column field="number" header="Номер">
             <template #filter="{ filterModel }">
               <InputText
                 v-model="filterModel.value"
@@ -88,7 +88,6 @@
             field="type.displayValue"
             header="Тип"
             filterField="type.displayValue"
-            style="min-width: 10rem"
           >
             <template #filter="{ filterModel }">
               <Select
@@ -103,7 +102,6 @@
             field="status.displayValue"
             header="Статус"
             filterField="status.displayValue"
-            style="min-width: 10rem"
           >
             <template #body="{ data }">
               <Tag
@@ -135,7 +133,6 @@
             field="organization.displayValue"
             header="Организация"
             filterField="organization.displayValue"
-            style="min-width: 12rem"
           >
             <template #filter="{ filterModel }">
               <InputText
@@ -149,7 +146,6 @@
             field="warehouse.displayValue"
             header="Склад"
             filterField="warehouse.displayValue"
-            style="min-width: 12rem"
           >
             <template #filter="{ filterModel }">
               <InputText
@@ -163,7 +159,6 @@
             field="createdBy.displayValue"
             header="Создал"
             filterField="createdBy.displayValue"
-            style="min-width: 12rem"
           >
             <template #filter="{ filterModel }">
               <InputText
@@ -173,12 +168,7 @@
               />
             </template>
           </Column>
-          <Column
-            field="comment"
-            header="Комментарий"
-            filterField="comment"
-            style="min-width: 12rem"
-          >
+          <Column field="comment" header="Комментарий" filterField="comment">
             <template #filter="{ filterModel }">
               <InputText
                 v-model="filterModel.value"
@@ -192,7 +182,6 @@
             header="Дата утверждения"
             filterField="approvedAt"
             dataType="date"
-            style="min-width: 12rem"
           >
             <template #body="{ data }">
               {{ formatDate(data.approvedAt) }}
@@ -785,18 +774,12 @@ const clearFilter = () => {
 </script>
 
 <style scoped>
-.orders-page {
-  padding: 20px;
-}
 .actions-container {
   display: flex;
   gap: 10px;
   margin-bottom: 20px;
 }
-.orders-table {
-  width: 100%;
-  max-width: 1200px;
-}
+
 .header-table {
   display: flex;
   justify-content: space-between;
@@ -832,10 +815,9 @@ const clearFilter = () => {
   overflow-x: auto;
 }
 .order-items-table {
-  max-width: 1150px;
+  max-width: 1120px;
 }
 .p-icon {
   color: white !important;
 }
-
 </style>
