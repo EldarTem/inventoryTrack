@@ -99,6 +99,11 @@ const menuItems = computed<MenuItem[]>(() => {
   if (userRole.value === "administrator" && isAuthenticated.value) {
     items.push(
       { label: "Заказы", icon: "pi pi-receipt", route: "AdminDashboard" },
+      {
+        label: "Инвентаризация",
+        icon: "pi pi-list",
+        route: "StorekeeperInventory",
+      },
       { label: "Товары", icon: "pi pi-box", route: "AdminProducts" },
       { label: "Склады", icon: "pi pi-building", route: "AdminWarehouses" },
       { label: "Категории", icon: "pi pi-tags", route: "AdminCategories" },

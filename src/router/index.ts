@@ -88,6 +88,11 @@ const routes = [
         component: AdminDashboard,
       },
       {
+        path: 'inventory',
+        name: 'StorekeeperInventory',
+        component: StorekeeperInventory,
+      },
+      {
         path: 'products',
         name: 'AdminProducts',
         component: AdminProducts,
@@ -142,7 +147,7 @@ router.beforeEach((to, from, next) => {
     isAuthenticated,
     'userRole:',
     userRole,
-  ) 
+  )
 
   if (to.meta.requiresAuth && !isAuthenticated) {
     next('/auth/login')
