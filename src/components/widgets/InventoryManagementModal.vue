@@ -249,8 +249,18 @@ const warehouses = computed(() =>
   }))
 );
 const users = ref([
-  { id: "user1", displayValue: "Пользователь 1" },
-  { id: "user2", displayValue: "Пользователь 2" },
+  { id: "user1", displayValue: "Темиров Эльдар" },
+  { id: "user2", displayValue: "Иван Петров" },
+  { id: "user3", displayValue: "Анна Иванова" },
+  { id: "user4", displayValue: "Сергей Козлов" },
+  { id: "user5", displayValue: "Мария Смирнова" },
+  { id: "user6", displayValue: "Дмитрий Воробьёв" },
+  { id: "user7", displayValue: "Мустафаева Эльмаз" },
+  { id: "user8", displayValue: "Ганиев Ибраим" },
+  { id: "user9", displayValue: "Яна Андрюшина" },
+  { id: "user10", displayValue: "Антон Красношлыков" },
+  { id: "user11", displayValue: "Герман Аносов" },
+  { id: "user12", displayValue: "Георгий Клементьев" },
 ]);
 const products = computed(() => productStore.products);
 const sections = computed(() => warehouseStore.sections);
