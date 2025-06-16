@@ -14,6 +14,8 @@ import './styles/primevue-theme.css'
 import { useAuthStore } from '@/stores/authStore'
 import ToastService from 'primevue/toastservice'
 import ConfirmationService from 'primevue/confirmationservice'
+import { useInventoryStore } from '@/stores/inventoryStore'
+import { useInventoryItemStore } from '@/stores/inventoryItemStore'
 
 // Определяем кастомный пресет
 const CustomPreset = definePreset(Aura, {
@@ -82,5 +84,8 @@ app.use(ConfirmationService)
 app.config.errorHandler = (err, vm, info) => {
   console.error('Vue Error:', err, info)
 }
-
+const inventoryStore = useInventoryStore()
+const inventoryItemStore = useInventoryItemStore()
+inventoryStore.initialize()
+inventoryItemStore.initialize()
 app.mount('#app')

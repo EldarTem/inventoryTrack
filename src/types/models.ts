@@ -147,3 +147,33 @@ export interface WarehouseSection {
     displayValue: string
   }
 }
+
+export interface Inventory {
+  id: string
+  number: string
+  status: { code: string; displayValue: string }
+  warehouse: { id: string; displayValue: string }
+  createdBy: { id: string; displayValue: string }
+  comment: string
+  createdAt: string
+}
+
+export interface NewInventory {
+  number: string
+  status: { code: string; displayValue: string }
+  warehouse: { id: string; displayValue: string }
+  createdBy: { id: string; displayValue: string }
+  comment: string
+  createdAt: string
+}
+
+export interface InventoryItem {
+  id: string
+  productId: string
+  inventoryId: string
+  productName: string
+  expectedQuantity: number
+  actualQuantity: number
+  sectionId: string
+  sectionName: string
+}

@@ -78,7 +78,7 @@ const menuItems = computed<MenuItem[]>(() => {
 
   if (userRole.value === "manager" && isAuthenticated.value) {
     items.push(
-      { label: "Накладные", icon: "pi pi-file", route: "ManagerInvoices" },
+      { label: "Заказы", icon: "pi pi-receipt", route: "ManagerInvoices" },
       { label: "Товары", icon: "pi pi-box", route: "ManagerProducts" }
     );
   }
